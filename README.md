@@ -15,8 +15,8 @@
 ### Windows環境での初期セットアップ
 ```bash
 # プロジェクトクローン
-git clone <repository-url> tastack2
-cd tastack2
+git clone https://github.com/NEIGE-yamazaki/tanstack2.git
+cd tanstack2
 
 # Windows環境セットアップ
 npm run setup:windows
@@ -37,8 +37,8 @@ npm run cap:open:android
 ### Mac環境での初期セットアップ
 ```bash
 # プロジェクトクローン
-git clone <repository-url> tastack2
-cd tastack2
+git clone https://github.com/NEIGE-yamazaki/tanstack2.git
+cd tanstack2
 
 # Mac環境セットアップ（iOS開発含む）
 npm run setup:mac
