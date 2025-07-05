@@ -153,7 +153,7 @@ echo "✅ iOS開発環境準備完了！"
 ### .env ファイルの調整
 ```env
 # 共通設定
-APP_NAME="TanStack2 App"
+APP_NAME=tastack2
 APP_ENV=local
 APP_DEBUG=true
 APP_TIMEZONE="Asia/Tokyo"

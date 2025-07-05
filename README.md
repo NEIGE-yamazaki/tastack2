@@ -1,4 +1,4 @@
-# TanStack2 App
+# tastack2
 
 **Laravel + Capacitor.js + Alpine.js** によるクロスプラットフォーム開発プロジェクト
 

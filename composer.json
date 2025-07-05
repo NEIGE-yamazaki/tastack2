@@ -1,8 +1,8 @@
 {
-    "name": "laravel/laravel",
+    "name": "tastack2/tastack2",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "tastack2 - Laravel + Capacitor.js クロスプラットフォーム開発プロジェクト",
+    "keywords": ["laravel", "capacitor", "mobile", "cross-platform", "tastack2"],
     "license": "MIT",
     "require": {
         "php": "^8.1",
