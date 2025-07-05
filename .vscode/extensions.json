@@ -4,33 +4,26 @@
     "bmewburn.vscode-intelephense-client",
     "onecentlin.laravel-blade",
     "devsense.phptools-vscode",
-    
     // JavaScript/TypeScript
     "ms-vscode.vscode-typescript-next",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
-    
     // モバイル開発
     "ionicframework.ionic",
     "vscjava.vscode-java-pack",
     "ms-vscode.vscode-json",
-    
     // Git/バージョン管理
     "eamodio.gitlens",
     "github.vscode-pull-request-github",
-    
     // 開発効率化
     "formulahendry.auto-rename-tag",
     "ms-vscode.sublime-keybindings",
     "rangav.vscode-thunder-client",
     "ms-vscode.live-server",
-    
     // Docker/コンテナ
     "ms-azuretools.vscode-docker",
-    
     // 日本語化
     "ms-ceintl.vscode-language-pack-ja",
-    
     // Markdown/ドキュメント
     "yzhang.markdown-all-in-one",
     "davidanson.vscode-markdownlint"

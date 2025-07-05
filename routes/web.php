@@ -68,26 +68,26 @@ Route::middleware('auth')->group(function () {
     Route::patch('/tasks/{task}/toggle', [TaskController::class, 'toggle'])->name('tasks.toggle');
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
-    
+
     // 共有タスク
     Route::get('/shared-tasks', [CategoryController::class, 'sharedTasks'])->name('categories.shared');
-// 共有情報の更新（権限変更）
-Route::patch('/categories/{category}/share/{user}', [CategoryController::class, 'updateShare'])->name('categories.share.update');
-// 共有情報の削除（共有解除）
-Route::delete('/categories/{category}/share/{user}', [CategoryController::class, 'deleteShare'])->name('categories.share.delete');
-    
+    // 共有情報の更新（権限変更）
+    Route::patch('/categories/{category}/share/{user}', [CategoryController::class, 'updateShare'])->name('categories.share.update');
+    // 共有情報の削除（共有解除）
+    Route::delete('/categories/{category}/share/{user}', [CategoryController::class, 'deleteShare'])->name('categories.share.delete');
+
     // 共有グループ
     Route::get('/share-groups', [\App\Http\Controllers\ShareGroupController::class, 'index'])->name('share-groups.index');
     Route::post('/share-groups', [\App\Http\Controllers\ShareGroupController::class, 'store'])->name('share-groups.store');
     Route::get('/share-groups/{group}/edit', [\App\Http\Controllers\ShareGroupController::class, 'edit'])->name('share-groups.edit'); // ← 追加
     Route::patch('/share-groups/{group}', [\App\Http\Controllers\ShareGroupController::class, 'update'])->name('share-groups.update'); // ← 追加
     Route::delete('/share-groups/{group}', [\App\Http\Controllers\ShareGroupController::class, 'destroy'])->name('share-groups.destroy');
-    
-// 閲覧専用：共有カテゴリ表示
-Route::get('/shared/{token}', [SharedCategoryController::class, 'show'])
-    ->middleware(['auth'])
-    ->name('shared.categories.show');
-    
+
+    // 閲覧専用：共有カテゴリ表示
+    Route::get('/shared/{token}', [SharedCategoryController::class, 'show'])
+        ->middleware(['auth'])
+        ->name('shared.categories.show');
+
 });
 
 
@@ -102,4 +102,4 @@ Route::get('/login/{provider}', [SocialiteController::class, 'redirectToProvider
 Route::get('/login/{provider}/callback', [SocialiteController::class, 'handleProviderCallback']);
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

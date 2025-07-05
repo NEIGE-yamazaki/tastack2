@@ -54,7 +54,8 @@
 /* Touch-friendly button sizing */
 .capacitor-mobile button,
 .capacitor-mobile .btn {
-    min-height: 44px; /* iOS guideline minimum touch target */
+    min-height: 44px;
+    /* iOS guideline minimum touch target */
     min-width: 44px;
 }
 
@@ -62,7 +63,8 @@
 .capacitor-mobile input,
 .capacitor-mobile select,
 .capacitor-mobile textarea {
-    font-size: 16px; /* Prevent zoom on iOS */
+    font-size: 16px;
+    /* Prevent zoom on iOS */
 }
 
 /* Loading spinner for mobile */
@@ -135,7 +137,7 @@
         padding-left: 1rem;
         padding-right: 1rem;
     }
-    
+
     .capacitor-mobile .grid {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -148,7 +150,7 @@
         background-color: #1a1a1a;
         color: #ffffff;
     }
-    
+
     .capacitor-mobile .navigation {
         background: #2a2a2a;
         border-bottom-color: #3a3a3a;
@@ -168,6 +170,7 @@
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -177,6 +180,7 @@
     from {
         transform: translateY(100%);
     }
+
     to {
         transform: translateY(0);
     }

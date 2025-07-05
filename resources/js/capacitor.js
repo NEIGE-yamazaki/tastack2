@@ -1,12 +1,12 @@
 import { App } from '@capacitor/app';
-import { SplashScreen } from '@capacitor/splash-screen';
-import { StatusBar, Style } from '@capacitor/status-bar';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
-import { Toast } from '@capacitor/toast';
 import { Browser } from '@capacitor/browser';
 import { Camera, CameraResultType } from '@capacitor/camera';
-import { Geolocation } from '@capacitor/geolocation';
 import { Device } from '@capacitor/device';
+import { Geolocation } from '@capacitor/geolocation';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { SplashScreen } from '@capacitor/splash-screen';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { Toast } from '@capacitor/toast';
 
 class TastackCapacitor {
     constructor() {
@@ -16,10 +16,10 @@ class TastackCapacitor {
     async init() {
         // App initialization
         await this.setupApp();
-        
+
         // Register app events
         this.registerAppEvents();
-        
+
         // Initialize UI
         this.initializeUI();
     }
@@ -28,12 +28,12 @@ class TastackCapacitor {
         try {
             // Hide splash screen
             await SplashScreen.hide();
-            
+
             // Set status bar style
             if (window.Capacitor?.isNativePlatform()) {
                 await StatusBar.setStyle({ style: Style.Dark });
             }
-            
+
             console.log('TASTACK2 Capacitor initialized successfully');
         } catch (error) {
             console.error('Error setting up app:', error);
@@ -62,7 +62,7 @@ class TastackCapacitor {
         // Add mobile-specific styles
         if (window.Capacitor?.isNativePlatform()) {
             document.body.classList.add('capacitor-mobile');
-            
+
             // Add platform-specific classes
             if (window.Capacitor.getPlatform() === 'ios') {
                 document.body.classList.add('capacitor-ios');

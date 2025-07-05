@@ -10,7 +10,6 @@
   },
   "editor.tabSize": 4,
   "editor.insertSpaces": true,
-  
   // 言語固有設定
   "typescript.preferences.importModuleSpecifier": "relative",
   "javascript.preferences.importModuleSpecifier": "relative",
@@ -18,7 +17,6 @@
     "blade": "html",
     "vue": "html"
   },
-  
   // ファイル関連設定
   "files.associations": {
     "*.blade.php": "blade",
@@ -34,7 +32,6 @@
     "**/.git/objects/**": true,
     "**/.git/subtree-cache/**": true
   },
-  
   // 検索除外設定
   "search.exclude": {
     "**/node_modules": true,
@@ -46,13 +43,11 @@
     "**/ios/App/build": true,
     "**/.git": true
   },
-  
   // Git設定
   "git.ignoreLimitWarning": true,
   "git.confirmSync": false,
   "git.autofetch": true,
   "git.enableSmartCommit": true,
-  
   // ターミナル設定
   "terminal.integrated.env.osx": {
     "PATH": "/opt/homebrew/bin:${env:PATH}"
@@ -61,7 +56,6 @@
     "PATH": "${env:PATH}"
   },
   "terminal.integrated.defaultProfile.windows": "Git Bash",
-  
   // PHP設定
   "php.validate.executablePath": "/usr/bin/php",
   "php.suggest.basic": true,
@@ -71,15 +65,12 @@
     "**/bootstrap/cache/**",
     "**/node_modules/**"
   ],
-  
   // Capacitor/モバイル開発設定
   "ionic.capacitorPreferredPlatform": "ios",
   "java.configuration.updateBuildConfiguration": "automatic",
-  
   // Live Server設定
   "liveServer.settings.port": 8081,
   "liveServer.settings.root": "/public",
-  
   // 自動保存
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000
