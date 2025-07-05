@@ -1,0 +1,50 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.env.windows
+.env.mac
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+
+# OS固有ファイル
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ログファイル
+*.log
+logs/
+
+# 一時ファイル
+*.tmp
+*.temp
+*~
+
+# IDEとエディタの設定（プロジェクト固有は除く）
+/.vscode/settings.json.user
+/.vscode/launch.json.user
+
+# Capacitor
+/ios/App/App/public
+/android/app/src/main/assets/public
+
+# ビルド成果物
+/dist
+/build

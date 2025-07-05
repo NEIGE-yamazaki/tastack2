@@ -1,0 +1,6 @@
+/* Capacitor Mobile Styles */
+@import './capacitor.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

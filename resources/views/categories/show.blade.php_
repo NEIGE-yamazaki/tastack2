@@ -1,0 +1,176 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 style="font-size: 1.25rem; font-weight: 600;">
+            {{ $category->name }} のタスク一覧
+        </h2>
+    </x-slot>
+
+    <div style="padding: 1.5rem;">
+        @if(session('success'))
+            <div style="color: green; margin-bottom: 1rem;">{{ session('success') }}</div>
+        @endif
+
+        @if(session('error'))
+            <div style="color: red; margin-bottom: 1rem;">{{ session('error') }}</div>
+        @endif
+
+        @if ($isOwner)
+        <!-- タスク追加フォーム -->
+        <form action="{{ route('categories.tasks.store', $category) }}" method="POST" style="margin-bottom: 1.5rem;">
+            @csrf
+
+            <div style="margin-bottom: 0.5rem;">
+                <input
+                    type="text"
+                    name="title"
+                    placeholder="タスク名"
+                    required
+                    style="border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;"
+                >
+            </div>
+
+            <div style="margin-bottom: 0.5rem;">
+                <input
+                    type="date"
+                    name="due_date"
+                    style="border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;"
+                >
+            </div>
+
+            <div style="margin-bottom: 0.5rem;">
+                <textarea
+                    name="note"
+                    placeholder="メモ（任意）"
+                    style="border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;"
+                ></textarea>
+            </div>
+
+            <button
+                type="submit"
+                style="background-color: #007bff; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;"
+            >
+                タスクを追加
+            </button>
+        </form>
+        @endif
+
+        @php
+            $editingId = request('edit');
+        @endphp
+
+        <ul style="padding-left: 1rem;">
+            @forelse($tasks as $task)
+                <li style="margin-bottom: 1.5rem;">
+                    @if ($editingId == $task->id && $isOwner)
+                        <form action="{{ route('tasks.update', $task) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+
+                            <input type="text" name="title" value="{{ old('title', $task->title) }}"
+                                style="width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #ccc; border-radius: 4px;" required>
+
+                            <input type="date" name="due_date" value="{{ old('due_date', $task->due_date) }}"
+                                style="width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">
+
+                            <textarea name="note"
+                                style="width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #ccc; border-radius: 4px;">{{ old('note', $task->note) }}</textarea>
+
+                            <button type="submit"
+                                style="background-color: #28a745; color: #fff; padding: 0.4rem 0.8rem; border: none; border-radius: 4px; margin-right: 0.5rem;">
+                                保存
+                            </button>
+                            <a href="{{ route('categories.show', $category) }}"
+                                style="color: #999; text-decoration: underline;">
+                                キャンセル
+                            </a>
+                        </form>
+                    @else
+                        <form action="{{ route('tasks.toggle', $task) }}" method="POST" style="display: inline;">
+                            @csrf
+                            @method('PATCH')
+                            <input
+                                type="checkbox"
+                                onchange="this.form.submit()"
+                                {{ $task->is_done ? 'checked' : '' }}
+                                style="margin-right: 0.5rem;"
+                            >
+                        </form>
+
+                        <span style="{{ $task->is_done ? 'text-decoration: line-through; color: gray;' : '' }}">
+                            <strong>{{ $task->title }}</strong>
+                            @if ($task->due_date)
+                                （期限: {{ $task->due_date }}）
+                            @endif
+                        </span>
+
+                        @if ($isOwner)
+                            <a href="{{ route('categories.show', ['category' => $category->id, 'edit' => $task->id]) }}"
+                               style="font-size: 0.8rem; color: #007bff; text-decoration: underline; margin-left: 0.5rem;">
+                                編集
+                            </a>
+
+                            <form
+                                action="{{ route('tasks.destroy', $task) }}"
+                                method="POST"
+                                style="display: inline; margin-left: 0.5rem;"
+                                onsubmit="return confirm('このタスクを本当に削除しますか？');"
+                            >
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                    style="background-color: #dc3545; color: #fff; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">
+                                    削除
+                                </button>
+                            </form>
+                        @endif
+
+                        @if ($task->note)
+                            <div style="font-size: 0.875rem; color: #555; margin-top: 0.25rem;">
+                                {{ $task->note }}
+                            </div>
+                        @endif
+                    @endif
+                </li>
+            @empty
+                <li>タスクはまだありません。</li>
+            @endforelse
+        </ul>
+
+        @if ($isOwner)
+        <!-- 共有設定フォーム -->
+        <div style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1.5rem;">
+            <h3 style="margin-bottom: 1rem;">このカテゴリの共有</h3>
+
+            <form action="{{ route('categories.share', $category) }}" method="POST">
+                @csrf
+
+                <div style="margin-bottom: 0.5rem;">
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="共有するユーザーのメールアドレス"
+                        required
+                        style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
+                    >
+                </div>
+
+                <div style="margin-bottom: 0.5rem;">
+                    <select
+                        name="permission"
+                        required
+                        style="width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px;"
+                    >
+                        <option value="view">閲覧のみ</option>
+                        <option value="edit">編集可能</option>
+                    </select>
+                </div>
+
+                <button type="submit"
+                    style="background-color: #28a745; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px;">
+                    共有リンクを送信
+                </button>
+            </form>
+        </div>
+        @endif
+    </div>
+</x-app-layout>

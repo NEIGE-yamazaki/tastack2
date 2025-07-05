@@ -1,0 +1,180 @@
+<x-app-layout>
+    <div class="">
+
+        <div class="headfix">
+            <p class="title">カテゴリ一覧</p>
+        </div>
+
+        <div class="taskform commonform category">
+            @if(session('success'))
+                <div class="result"><p class="success">{{ session('success') }}</p></div>
+            @endif
+
+<form action="{{ route('categories.store') }}" method="POST" id="category-create-form" enctype="multipart/form-data">
+    @csrf
+    <div class="category_name">
+    <input
+        type="text"
+        name="name"
+        placeholder="カテゴリ名"
+        required
+    >
+    </div>
+    <div class="category_icon">
+<input type="file" name="icon" accept="image/*" onchange="checkSize(this)">
+<script>
+function checkSize(input) {
+    if (input.files[0] && input.files[0].size > 5 * 1024 * 1024) {
+        alert("画像サイズは5MB以下にしてください。");
+        input.value = "";
+    }
+}
+</script>
+    </div>
+    <div class="category_add">
+    <button type="submit">追加</button>
+    </div>
+</form>
+            
+        </div>
+
+        <div class="categorylist">
+            <ul id="category-list">
+                @forelse($categories as $category)
+                    <li data-id="{{ $category->id }}">
+                        <p>
+                            <a href="{{ route('categories.show', $category) }}" class="category-name">
+                                <span class="img"><img src="{{ asset('storage/' . $category->icon_path) }}" alt="アイコン"></span>
+                                @if($category->incomplete_tasks_count > 0)
+                                    <span class="status">未完了<i>{{ $category->incomplete_tasks_count }}</i></span>
+                                @endif
+                                <strong class="title">{{ $category->name }}</strong>
+                            </a>
+                        </p>
+                        <button class="edit-category" data-id="{{ $category->id }}" data-name="{{ $category->name }}">編集</button>
+                        <form action="{{ route('categories.destroy', $category) }}"
+                              method="POST"
+                              class="delete-category-form"
+                              style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="delete-category">削除</button>
+                        </form>
+                    </li>
+                @empty
+                    <li><p>まだカテゴリがありません。</p></li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const list = document.getElementById('category-list');
+
+    // 編集ボタンクリック時
+    list.addEventListener('click', function (e) {
+        const btn = e.target.closest('.edit-category');
+        if (!btn) return;
+
+        const li = btn.closest('li');
+        const id = btn.dataset.id;
+        const name = btn.dataset.name;
+
+        // 編集フォームに差し替え
+        li.innerHTML = `
+            <form class="edit-category-form" data-id="${id}" method="POST" action="/categories/${id}">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="_method" value="PATCH">
+                <input type="text" name="name" value="${name}" required>
+                <button type="submit" class="save">保存</button>
+                <button type="button" class="cancel-edit">キャンセル</button>
+            </form>
+        `;
+    });
+
+    // 編集フォーム送信（修正版：POST + FormData + _method=PATCH）
+    list.addEventListener('submit', function (e) {
+        const form = e.target.closest('.edit-category-form');
+        if (!form) return;
+
+        e.preventDefault();
+        const id = form.dataset.id;
+        const formData = new FormData(form);
+        formData.append('_method', 'PATCH'); // LaravelにPATCHとして認識させる
+
+        fetch(`/categories/${id}`, {
+            method: 'POST', // POSTで送信し、_methodで上書き
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('更新失敗');
+            return res.json();
+        })
+        .then(data => {
+            form.parentElement.innerHTML = `
+                <p><a href="/categories/${id}" class="category-name">${data.name}</a></p>
+                <button class="edit-category" data-id="${id}" data-name="${data.name}">編集</button>
+                <form action="/categories/${id}" method="POST" class="delete-category-form" style="display:inline;">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="delete-category">削除</button>
+                </form>
+            `;
+        })
+        .catch(() => alert('更新に失敗しました'));
+    });
+
+    // キャンセルボタン
+    list.addEventListener('click', function (e) {
+        const btn = e.target.closest('.cancel-edit');
+        if (!btn) return;
+
+        const form = btn.closest('form');
+        const id = form.dataset.id;
+        const name = form.querySelector('input[name="name"]').value;
+
+        form.parentElement.innerHTML = `
+            <p><a href="/categories/${id}" class="category-name">${name}</a></p>
+            <button class="edit-category" data-id="${id}" data-name="${name}">編集</button>
+            <form action="/categories/${id}" method="POST" class="delete-category-form" style="display:inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="delete-category">削除</button>
+            </form>
+        `;
+    });
+
+    // 削除フォーム送信（Ajax）
+    list.addEventListener('submit', function (e) {
+        const form = e.target.closest('.delete-category-form');
+        if (!form) return;
+
+        e.preventDefault();
+        if (!confirm('このカテゴリを削除しますか？（タスクも削除されます）')) return;
+
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new FormData(form)
+        })
+        .then(res => {
+            if (res.ok) {
+                form.closest('li').remove();
+            } else {
+                alert('削除に失敗しました');
+            }
+        })
+        .catch(() => alert('通信エラーが発生しました'));
+    });
+});
+</script>
+    
+</x-app-layout>

@@ -1,0 +1,34 @@
+{
+  "files.eol": "\n",
+  "editor.insertFinalNewline": true,
+  "editor.trimAutoWhitespace": true,
+  "editor.formatOnSave": true,
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "emmet.includeLanguages": {
+    "blade": "html"
+  },
+  "files.associations": {
+    "*.blade.php": "blade",
+    "*.env.*": "dotenv"
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/vendor": true,
+    "**/storage": true,
+    "**/bootstrap/cache": true
+  },
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "git.ignoreLimitWarning": true,
+  "terminal.integrated.env.osx": {
+    "PATH": "/opt/homebrew/bin:${env:PATH}"
+  },
+  "php.validate.executablePath": "/usr/bin/php",
+  "intelephense.files.exclude": [
+    "**/vendor/**",
+    "**/storage/**",
+    "**/bootstrap/cache/**"
+  ]
+}

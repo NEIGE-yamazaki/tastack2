@@ -1,0 +1,37 @@
+<!-- resources/views/components/share-users.blade.php -->
+@if ($isOwner && $category->sharedUsers->count())
+    <div style="margin-top: 2rem;">
+        <strong>共有中のユーザー：</strong>
+        <ul>
+            @foreach($category->sharedUsers as $user)
+                <li style="margin-bottom: 0.5rem;">
+                    <form action="{{ route('categories.share.update', [$category->id, $user->id]) }}" method="POST" class="share-edit-form" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                        @csrf
+                        @method('PATCH')
+                        {{ $user->name }}（{{ $user->email }}）
+                        <select name="permission">
+                            <option value="view" {{ $user->pivot->permission === 'view' ? 'selected' : '' }}>閲覧のみ</option>
+                            <option value="edit" {{ $user->pivot->permission === 'edit' ? 'selected' : '' }}>編集可能</option>
+                        </select>
+                        <button type="submit"
+                            style="padding: 0.2rem 0.6rem; background-color: #007bff; color: #fff; border: none; border-radius: 4px;">
+                            更新
+                        </button>
+                    </form>
+                    <form action="{{ route('categories.share.delete', [$category->id, $user->id]) }}" method="POST" class="share-delete-form" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                            style="padding: 0.2rem 0.6rem; background-color: #dc3545; color: #fff; border: none; border-radius: 4px;">
+                            削除
+                        </button>
+                    </form>
+
+                    @if(!$user->pivot->is_confirmed)
+                        <span style="color: #999;">（未承認）</span>
+                    @endif
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif

@@ -1,0 +1,33 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 style="font-size: 1.25rem; font-weight: 600;">
+            {{ $category->name }} のタスク一覧
+        </h2>
+    </x-slot>
+
+    <div style="padding: 1.5rem;">
+        @if(session('success'))
+            <div style="color: green; margin-bottom: 1rem;">{{ session('success') }}</div>
+        @endif
+
+        @if(session('error'))
+            <div style="color: red; margin-bottom: 1rem;">{{ session('error') }}</div>
+        @endif
+
+        @if ($isOwner)
+            @include('components.task-form', ['category' => $category])
+        @endif
+
+        <ul id="task-list" style="padding-left: 1rem;">
+            @foreach($tasks as $task)
+                <li data-task-id="{{ $task->id }}" style="margin-bottom: 1.5rem;">
+                    @include('components.task-item', ['task' => $task, 'isOwner' => $isOwner, 'category' => $category])
+                </li>
+            @endforeach
+        </ul>
+
+        @include('components.share-settings', ['category' => $category, 'isOwner' => $isOwner])
+    </div>
+
+    <script src="{{ asset('js/tasks.js') }}"></script>
+</x-app-layout>

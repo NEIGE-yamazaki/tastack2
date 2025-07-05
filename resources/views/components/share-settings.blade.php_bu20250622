@@ -1,0 +1,160 @@
+@if ($isOwner && $category->sharedUsers->count())
+    <div class="taskshare">
+        <p class="title">共有中のユーザー</p>
+        <ul>
+            @foreach($category->sharedUsers as $user)
+                <li>
+                    <form action="{{ route('categories.share.update', [$category->id, $user->id]) }}"
+                          method="POST"
+                          class="share-edit-form">
+                        @csrf
+                        @method('PATCH')
+                        <p class="name">
+                        <strong>{{ $user->name }}</strong>
+                        @if (!$user->pivot->is_confirmed)
+                        <span>未承認</span>
+                        @endif
+                        </p>
+                        <p class="email">{{ $user->email }}</p>
+                        <select name="permission">
+                            <option value="view" {{ $user->pivot->permission === 'view' ? 'selected' : '' }}>閲覧のみ</option>
+                            <option value="edit" {{ $user->pivot->permission === 'edit' ? 'selected' : '' }}>編集可能</option>
+                        </select>
+                        <button type="submit" class="edit">更新</button>
+                    </form>
+                    <form action="{{ route('categories.share.delete', [$category->id, $user->id]) }}"
+                          method="POST"
+                          class="share-delete-form"
+                          onsubmit="return confirm('この共有を解除しますか？');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="delete">削除</button>
+                    </form>
+                </li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+@if ($isOwner)
+    <div class="taskshare">
+        <p class="title">このカテゴリの共有</p>
+
+        <!-- ▼ グループから選択 -->
+        @if (!empty($groups) && $groups->count())
+            <div class="group">
+                <div class="inner">
+                <label>共有グループから選択：</label>
+                <select id="group-selector">
+                    <option value="">-- グループを選択 --</option>
+                    @foreach ($groups as $group)
+                        <!-- 修正後：最新のユーザー情報（account_id または email）を使用 -->
+                        <option value="{{ $group->id }}" data-members='@json($group->members->map(fn($m) => $m->user->account_id ?? $m->user->email))'>
+                            {{ $group->name }}
+                        </option>
+                    @endforeach
+                </select>
+                </div>
+                <button type="button" onclick="insertGroupMembers()" class="add">追加</button>
+            </div>
+        @endif
+
+        <form id="share-form" action="{{ route('categories.share', $category) }}" method="POST">
+            @csrf
+
+            <div id="share-user-list">
+                <!-- 最初の入力フィールド -->
+                <div class="share-user-row">
+                    <input type="text" name="identifiers[]" placeholder="アカウントID または メールアドレス">
+                    <select name="permissions[]">
+                        <option value="view">閲覧のみ</option>
+                        <option value="edit">編集可能</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="addform">
+            <button type="button" onclick="addShareUserRow()" class="add">共有先を追加</button>
+            <button type="submit" class="send">共有リンクを送信</button>
+            </div>
+            
+        </form>
+
+        <script>
+            function addShareUserRow() {
+                const list = document.getElementById('share-user-list');
+                const row = document.querySelector('.share-user-row');
+                const clone = row.cloneNode(true);
+                clone.querySelector('input').value = '';
+                clone.querySelector('select').value = 'view';
+
+                if (!clone.querySelector('.remove-button')) {
+                    const btn = document.createElement('button');
+                    btn.textContent = '削除';
+                    btn.type = 'button';
+                    btn.className = 'remove-button';
+                    btn.style = '';
+                    btn.onclick = function () {
+                        list.removeChild(clone);
+                    };
+                    clone.appendChild(btn);
+                }
+
+                list.appendChild(clone);
+            }
+
+            function insertGroupMembers() {
+                const select = document.getElementById('group-selector');
+                const members = JSON.parse(select.options[select.selectedIndex]?.dataset.members || '[]');
+
+                if (!members.length) {
+                    alert('メンバーが見つかりません');
+                    return;
+                }
+
+                const list = document.getElementById('share-user-list');
+
+                members.forEach(identifier => {
+                    const row = document.querySelector('.share-user-row').cloneNode(true);
+                    row.querySelector('input').value = identifier;
+                    row.querySelector('select').value = 'view';
+
+                    if (!row.querySelector('.remove-button')) {
+                        const btn = document.createElement('button');
+                        btn.textContent = '削除';
+                        btn.type = 'button';
+                        btn.className = 'remove-button';
+                        btn.style = '';
+                        btn.onclick = function () {
+                            list.removeChild(row);
+                        };
+                        row.appendChild(btn);
+                    }
+
+                    list.appendChild(row);
+                });
+            }
+
+            // フォーム送信前に空欄を除外
+            document.getElementById('share-form').addEventListener('submit', function (e) {
+                const rows = document.querySelectorAll('.share-user-row');
+                let hasValidInput = false;
+
+                rows.forEach(row => {
+                    const input = row.querySelector('input');
+                    if (input.value.trim() === '') {
+                        input.disabled = true;
+                        row.querySelector('select').disabled = true;
+                    } else {
+                        hasValidInput = true;
+                    }
+                });
+
+                if (!hasValidInput) {
+                    e.preventDefault();
+                    alert('少なくとも1件の共有先を入力してください');
+                }
+            });
+        </script>
+    </div>
+@endif

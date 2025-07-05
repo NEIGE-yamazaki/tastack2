@@ -1,0 +1,46 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "cap:add:ios": "npx cap add ios",
+        "cap:add:android": "npx cap add android",
+        "cap:sync": "npx cap sync",
+        "cap:copy": "npx cap copy",
+        "cap:open:ios": "npx cap open ios",
+        "cap:open:android": "npx cap open android",
+        "cap:run:ios": "npx cap run ios",
+        "cap:run:android": "npx cap run android",
+        "build:mobile": "vite build && npx cap sync",
+        "sync:windows": "bash scripts/pre-push-check.sh",
+        "sync:mac": "bash scripts/sync-and-build-ios.sh",
+        "env:windows": "cp .env.windows.example .env",
+        "env:mac": "cp .env.mac.example .env",
+        "setup:windows": "npm install && npm run env:windows",
+        "setup:mac": "npm install && npm run env:mac && npm run build:mobile",
+        "clean": "rm -rf node_modules package-lock.json && npm install",
+        "clean:mobile": "npx cap clean && npx cap sync"
+    },
+    "devDependencies": {
+        "axios": "^1.6.4",
+        "laravel-vite-plugin": "^1.0.0",
+        "vite": "^5.0.0"
+    },
+    "dependencies": {
+        "@capacitor/android": "^7.4.1",
+        "@capacitor/app": "^7.0.1",
+        "@capacitor/browser": "^7.0.1",
+        "@capacitor/camera": "^7.0.1",
+        "@capacitor/cli": "^7.4.1",
+        "@capacitor/core": "^7.4.1",
+        "@capacitor/device": "^7.0.1",
+        "@capacitor/geolocation": "^7.1.3",
+        "@capacitor/haptics": "^7.0.1",
+        "@capacitor/ios": "^7.4.1",
+        "@capacitor/splash-screen": "^7.0.1",
+        "@capacitor/status-bar": "^7.0.1",
+        "@capacitor/toast": "^7.0.1",
+        "alpinejs": "^3.14.9"
+    }
+}

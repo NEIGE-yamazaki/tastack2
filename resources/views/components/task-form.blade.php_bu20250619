@@ -1,0 +1,43 @@
+{{-- resources/views/components/task-form.blade.php --}}
+<div class="taskform commonform">
+<form action="{{ route('categories.tasks.store', $category) }}" method="POST">
+    @csrf
+
+    <div>
+        <input
+            type="text"
+            name="title"
+            placeholder="タスク名"
+            required
+        >
+    </div>
+
+    <div>
+        <input
+            type="date"
+            name="due_date"
+        >
+    </div>
+
+    <div>
+        <textarea
+            name="note"
+            placeholder="メモ（任意）"
+        ></textarea>
+    </div>
+
+    {{-- Googleカレンダー追加オプション（Google連携済ユーザーのみ） --}}
+    {{-- Google審査完了後
+    @if (Auth::user()->google_token)
+        <div>
+            <label>
+                <input type="checkbox" name="add_to_google_calendar" value="1">
+                Googleカレンダーに追加する
+            </label>
+        </div>
+    @endif
+    --}}
+
+    <button type="submit" class="add">タスクを追加</button>
+</form>
+</div>

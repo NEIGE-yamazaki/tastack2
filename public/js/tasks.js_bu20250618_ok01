@@ -1,0 +1,179 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const taskList = document.getElementById('task-list');
+
+    // --- タスク完了状態トグル ---
+    taskList.addEventListener('change', function (e) {
+        const checkbox = e.target.closest('.task-toggle-checkbox');
+        if (!checkbox) return;
+
+        const form = checkbox.closest('form');
+        fetch(form.action, {
+            method: 'PATCH',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({})
+        })
+        .then(res => res.json())
+        .then(data => {
+            checkbox.checked = data.is_done;
+            const taskCheck = form.closest('.taskcheck');
+            const titleDiv = taskCheck?.querySelector('.title');
+            if (titleDiv) {
+                titleDiv.classList.toggle('end', data.is_done);
+            }
+        })
+        .catch(() => {
+            alert('更新に失敗しました');
+            checkbox.checked = !checkbox.checked;
+        });
+    });
+
+    // --- 編集リンク ---
+    taskList.addEventListener('click', function (e) {
+        const link = e.target.closest('.edit-task-link');
+        if (!link) return;
+        e.preventDefault();
+
+        const li = link.closest('li');
+        const id = link.dataset.id;
+        const title = link.dataset.title;
+        const due = link.dataset.due_date || '';
+        const note = link.dataset.note || '';
+        const csrf = document.querySelector('meta[name="csrf-token"]').content;
+
+        // 他の編集フォームを強制的に閉じて復元
+        document.querySelectorAll('.task-edit-form').forEach(form => {
+            const parentLi = form.closest('li');
+            if (parentLi?.dataset.originalHtml) {
+                parentLi.innerHTML = parentLi.dataset.originalHtml;
+                const checkbox = parentLi.querySelector('.task-toggle-checkbox');
+                const titleEl = parentLi.querySelector('.title');
+                if (parentLi.dataset.originalChecked === 'true') {
+                    if (checkbox) checkbox.checked = true;
+                    if (titleEl && parentLi.dataset.originalEnd === 'true') titleEl.classList.add('end');
+                } else {
+                    if (checkbox) checkbox.checked = false;
+                    if (titleEl) titleEl.classList.remove('end');
+                }
+            }
+        });
+
+        // 編集前の状態保存
+        const originalHtml = li.innerHTML;
+        const checkboxEl = li.querySelector('.task-toggle-checkbox');
+        const titleEl = li.querySelector('.title');
+        li.dataset.originalHtml = originalHtml;
+        li.dataset.originalChecked = checkboxEl?.checked ? 'true' : 'false';
+        li.dataset.originalEnd = titleEl?.classList.contains('end') ? 'true' : 'false';
+
+        // 編集フォーム差し替え
+        li.innerHTML = `
+            <div class="taskform commonform">
+            <form class="task-edit-form" method="POST" action="/tasks/${id}">
+                <input type="hidden" name="_token" value="${csrf}">
+                <input type="hidden" name="_method" value="PATCH">
+                <input type="text" name="title" value="${title}" required>
+                <input type="date" name="due_date" value="${due}">
+                <textarea name="note">${note}</textarea>
+                <button type="submit">保存</button>
+                <button type="button" class="cancel-edit">キャンセル</button>
+            </form>
+            </div>
+        `;
+
+        // 保存処理
+        li.querySelector('.task-edit-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(this).entries());
+            fetch(this.action, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': csrf,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(() => location.reload())
+            .catch(() => alert('保存に失敗しました'));
+        });
+
+        // キャンセル処理
+        li.querySelector('.cancel-edit').addEventListener('click', () => {
+            li.innerHTML = li.dataset.originalHtml;
+
+            const checkbox = li.querySelector('.task-toggle-checkbox');
+            const titleEl = li.querySelector('.title');
+            if (li.dataset.originalChecked === 'true') {
+                if (checkbox) checkbox.checked = true;
+                if (titleEl && li.dataset.originalEnd === 'true') titleEl.classList.add('end');
+            } else {
+                if (checkbox) checkbox.checked = false;
+                if (titleEl) titleEl.classList.remove('end');
+            }
+        });
+    });
+
+    // --- タスク削除 ---
+    taskList.addEventListener('submit', function (e) {
+        const form = e.target.closest('.task-delete-form');
+        if (!form) return;
+
+        e.preventDefault();
+        if (!confirm('このタスクを本当に削除しますか？')) return;
+
+        fetch(form.action, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+        })
+        .then(() => {
+            form.closest('li').remove();
+        });
+    });
+
+    // --- 共有ユーザー：権限更新 ---
+    document.querySelectorAll('.share-edit-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(form).entries());
+            fetch(form.action, {
+                method: 'PATCH',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(data => alert(data.message))
+            .catch(() => alert('更新に失敗しました'));
+        });
+    });
+
+    // --- 共有ユーザー：削除 ---
+    document.querySelectorAll('.share-delete-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!confirm('この共有を解除しますか？')) return;
+
+            fetch(form.action, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+            })
+            .then(() => {
+                form.closest('li').remove();
+            });
+        });
+    });
+});

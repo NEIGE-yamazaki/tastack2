@@ -1,0 +1,51 @@
+{{-- resources/views/components/task-form.blade.php --}}
+
+<form action="{{ route('categories.tasks.store', $category) }}" method="POST" style="margin-bottom: 1.5rem;">
+    @csrf
+
+    <div style="margin-bottom: 0.5rem;">
+        <input
+            type="text"
+            name="title"
+            placeholder="タスク名"
+            required
+            style="border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;"
+        >
+    </div>
+
+    <div style="margin-bottom: 0.5rem;">
+        <input
+            type="date"
+            name="due_date"
+            style="border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;"
+        >
+    </div>
+
+    <div style="margin-bottom: 0.5rem;">
+        <textarea
+            name="note"
+            placeholder="メモ（任意）"
+            style="border: 1px solid #ccc; padding: 0.5rem; width: 100%; border-radius: 4px;"
+        ></textarea>
+    </div>
+
+    {{-- Googleカレンダー追加オプション（Google連携済ユーザーのみ） --}}
+    {{-- Google審査完了後
+    @if (Auth::user()->google_token)
+        <div style="margin-bottom: 0.75rem;">
+            <label style="display: flex; align-items: center;">
+                <input type="checkbox" name="add_to_google_calendar" value="1" style="margin-right: 0.5rem;">
+                Googleカレンダーに追加する
+            </label>
+        </div>
+    @endif
+    --}}
+
+    <button
+        type="submit"
+        style="background-color: #007bff; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;"
+    >
+        タスクを追加
+    </button>
+</form>
+

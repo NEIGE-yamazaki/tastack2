@@ -1,0 +1,183 @@
+/* Capacitor Mobile Styles */
+
+/* Base mobile styles */
+.capacitor-mobile {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS specific styles */
+.capacitor-ios {
+    /* Safe area handling for iPhone notch */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+}
+
+/* Android specific styles */
+.capacitor-android {
+    /* Android material design adjustments */
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Status bar adjustments */
+.capacitor-mobile .page-header {
+    padding-top: calc(env(safe-area-inset-top) + 1rem);
+}
+
+/* Navigation adjustments for mobile */
+.capacitor-mobile .navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+    padding-top: env(safe-area-inset-top);
+}
+
+/* Content spacing for fixed navigation */
+.capacitor-mobile main {
+    padding-top: calc(4rem + env(safe-area-inset-top));
+}
+
+/* Bottom navigation adjustments */
+.capacitor-mobile .bottom-navigation {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+}
+
+/* Touch-friendly button sizing */
+.capacitor-mobile button,
+.capacitor-mobile .btn {
+    min-height: 44px; /* iOS guideline minimum touch target */
+    min-width: 44px;
+}
+
+/* Form input adjustments */
+.capacitor-mobile input,
+.capacitor-mobile select,
+.capacitor-mobile textarea {
+    font-size: 16px; /* Prevent zoom on iOS */
+}
+
+/* Loading spinner for mobile */
+.capacitor-mobile .loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+}
+
+/* Toast notification styles */
+.capacitor-toast {
+    position: fixed;
+    bottom: calc(2rem + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    z-index: 10000;
+    max-width: 90%;
+    text-align: center;
+}
+
+/* Haptic feedback visual indication */
+.capacitor-mobile .haptic-feedback {
+    transition: transform 0.1s ease;
+}
+
+.capacitor-mobile .haptic-feedback:active {
+    transform: scale(0.95);
+}
+
+/* Camera capture button */
+.capacitor-mobile .camera-button {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #007AFF;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Swipe gesture indicators */
+.capacitor-mobile .swipe-indicator {
+    position: relative;
+}
+
+.capacitor-mobile .swipe-indicator::after {
+    content: '';
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid #ccc;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+}
+
+/* Responsive design for different screen sizes */
+@media (max-width: 768px) {
+    .capacitor-mobile .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .capacitor-mobile .grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .capacitor-mobile {
+        background-color: #1a1a1a;
+        color: #ffffff;
+    }
+    
+    .capacitor-mobile .navigation {
+        background: #2a2a2a;
+        border-bottom-color: #3a3a3a;
+    }
+}
+
+/* Animation classes for smooth transitions */
+.capacitor-fade-in {
+    animation: capacitorFadeIn 0.3s ease-in-out;
+}
+
+.capacitor-slide-up {
+    animation: capacitorSlideUp 0.3s ease-out;
+}
+
+@keyframes capacitorFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes capacitorSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,45 @@
+<x-app-layout>
+    <div class="">
+    
+        <div class="headfix">
+        <p class="title">カテゴリ一覧</p>
+        </div>
+
+    <div class="taskform commonform category">
+    
+        @if(session('success'))
+            <div class="result"><p class="success">{{ session('success') }}</p></div>
+        @endif
+
+        <form action="{{ route('categories.store') }}" method="POST">
+            @csrf
+            <input
+                type="text"
+                name="name"
+                placeholder="カテゴリ名"
+                required
+            >
+            <button type="submit">
+                追加
+            </button>
+        </form>
+        
+    </div>
+
+<div class="categorylist">
+<ul>
+    @forelse($categories as $category)
+        <li>
+            <p><a href="{{ route('categories.show', $category) }}">
+                {{ $category->name }}
+            </a></p>
+        </li>
+    @empty
+        <li><p>まだカテゴリがありません。</p></li>
+    @endforelse
+</ul>
+</div>
+    
+    </div>
+</x-app-layout>
+

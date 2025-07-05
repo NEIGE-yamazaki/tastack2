@@ -1,0 +1,88 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            共有グループの管理
+        </h2>
+    </x-slot>
+
+    <div class="py-8 max-w-4xl mx-auto sm:px-6 lg:px-8">
+        @if (session('success'))
+            <div class="mb-4 text-green-600">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- 新規グループ作成フォーム -->
+        <div class="bg-white p-6 rounded shadow mb-8">
+            <h3 class="text-lg font-semibold mb-4">新しい共有グループを作成</h3>
+
+            <form action="{{ route('share-groups.store') }}" method="POST">
+                @csrf
+
+                <div class="mb-4">
+                    <label class="block font-medium">グループ名</label>
+                    <input type="text" name="name" class="border rounded w-full px-3 py-2" required>
+                    @error('name') <div class="text-sm text-red-600 mt-1">{{ $message }}</div> @enderror
+                </div>
+
+                <div id="group-members">
+                    <label class="block font-medium">共有先（アカウントIDまたはメールアドレス）</label>
+
+                    <div class="mb-2">
+                        <input type="text" name="identifiers[]" class="border rounded w-full px-3 py-2" required>
+                    </div>
+                </div>
+
+                <button type="button" onclick="addMemberInput()" class="text-sm text-blue-600 mb-4">＋ メンバー追加</button>
+
+                <script>
+                    function addMemberInput() {
+                        const container = document.getElementById('group-members');
+                        const input = document.createElement('div');
+                        input.classList.add('mb-2');
+                        input.innerHTML = `<input type="text" name="identifiers[]" class="border rounded w-full px-3 py-2" required>`;
+                        container.appendChild(input);
+                    }
+                </script>
+
+                <button type="submit" style="background-color: #007bff; color: #fff; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer;">グループを作成</button>
+            </form>
+        </div>
+
+        <!-- 既存グループ一覧 -->
+        <div class="bg-white p-6 rounded shadow">
+            <h3 class="text-lg font-semibold mb-4">登録済みの共有グループ</h3>
+
+            @forelse ($groups as $group)
+                <div class="border-b py-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <strong>{{ $group->name }}</strong>
+<ul class="ml-4 text-sm text-gray-600">
+    @foreach ($group->members as $member)
+        <li>
+            ・
+            @if ($member->user)
+                {{ $member->user->account_id ?? $member->user->email }}
+                <span class="text-gray-400 text-xs">（{{ $member->identifier }}）</span>
+            @else
+                {{ $member->identifier }}
+            @endif
+        </li>
+    @endforeach
+</ul>
+                        </div>
+
+                        <form action="{{ route('share-groups.destroy', $group) }}" method="POST" onsubmit="return confirm('本当に削除しますか？');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-600 text-sm">削除</button>
+                        </form>
+                    </div>
+                </div>
+            @empty
+                <p class="text-gray-600">まだグループはありません。</p>
+            @endforelse
+        </div>
+    </div>
+</x-app-layout>

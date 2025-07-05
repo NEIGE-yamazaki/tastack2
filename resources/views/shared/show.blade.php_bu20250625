@@ -1,0 +1,32 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2>「{{ $category->name }}」のタスク一覧（閲覧専用）</h2>
+    </x-slot>
+
+    <div class="p-6">
+        <ul style="padding-left: 1rem;">
+            @forelse($category->tasks as $task)
+                <li style="margin-bottom: 1.5rem;">
+                    <div style="{{ $task->is_done ? 'text-decoration: line-through; color: gray;' : '' }}">
+                        <strong>{{ $task->title }}</strong>
+                        @if ($task->due_date)
+                            （期限: {{ $task->due_date }}）
+                        @endif
+                    </div>
+
+                    @if ($task->note)
+                        <div style="font-size: 0.875rem; color: #555; margin-top: 0.25rem;">
+                            {{ $task->note }}
+                        </div>
+                    @endif
+                </li>
+            @empty
+                <li>タスクはありません。</li>
+            @endforelse
+        </ul>
+
+        <div style="margin-top: 2rem;">
+            <a href="{{ route('dashboard') }}">← ダッシュボードへ戻る</a>
+        </div>
+    </div>
+</x-app-layout>

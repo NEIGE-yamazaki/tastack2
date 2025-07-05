@@ -1,0 +1,293 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use App\Models\Category;
+use App\Models\Task;
+use App\Models\User;
+use App\Models\CategoryUserShare;
+use App\Notifications\CategoryShareInvitation;
+use App\Models\ShareGroup;
+
+use Google_Client;
+use Google_Service_Calendar;
+use Google_Service_Calendar_Event;
+use Carbon\Carbon;
+
+class CategoryController extends Controller
+{
+
+    // カテゴリ一覧
+    public function index()
+    {
+        $categories = Category::where('user_id', Auth::id())->get();
+        return view('categories.index', compact('categories'));
+    }
+
+    // カテゴリ作成
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:50',
+        ]);
+
+        Category::create([
+            'user_id' => Auth::id(),
+            'name' => $request->name,
+        ]);
+
+        return redirect()->back()->with('success', 'カテゴリを追加しました');
+    }
+
+    // カテゴリ詳細（タスク一覧）
+public function show(Category $category)
+{
+    $user = Auth::user();
+
+    $hasAccess = $category->user_id === $user->id ||
+        CategoryUserShare::where('category_id', $category->id)
+            ->where('shared_user_id', $user->id)
+            ->where('is_confirmed', true)
+            ->exists();
+
+    if (!$hasAccess) {
+        abort(403);
+    }
+
+    $tasks = $category->tasks()->orderBy('created_at', 'desc')->get();
+    $isOwner = $category->user_id === $user->id;
+
+    $hasEditPermission = CategoryUserShare::where('category_id', $category->id)
+        ->where('shared_user_id', $user->id)
+        ->where('permission', 'edit')
+        ->where('is_confirmed', true)
+        ->exists();
+
+    $canEdit = $isOwner || $hasEditPermission;
+
+// 修正後（members に紐づく user も eager load する）：
+$groups = ShareGroup::with(['members.user'])
+    ->where('user_id', $user->id)
+    ->get();
+
+    return view('categories.show', compact('category', 'tasks', 'isOwner', 'canEdit', 'groups'));
+}
+
+    // タスク追加
+public function addTask(Request $request, Category $category)
+{
+    $user = Auth::user();
+
+    $hasEditPermission = $category->sharedUsers()
+        ->where('shared_user_id', $user->id)
+        ->where('permission', 'edit')
+        ->where('is_confirmed', true)
+        ->exists();
+
+    if ($category->user_id !== $user->id && !$hasEditPermission) {
+        abort(403);
+    }
+
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'due_date' => 'nullable|date',
+        'note' => 'nullable|string',
+    ]);
+
+    $task = $category->tasks()->create([
+        'title' => $request->title,
+        'due_date' => $request->due_date,
+        'note' => $request->note,
+    ]);
+    
+// Googleカレンダーに追加（チェックボックスで選ばれている場合のみ）
+if (
+    $user->google_token &&
+    $task->due_date &&
+    $request->has('add_to_google_calendar')
+) {
+    //Google審査完了後
+    //$this->addToGoogleCalendar($user, $task);
+}
+
+    return redirect()->route('categories.show', $category)->with('success', 'タスクを追加しました');
+}
+
+// カテゴリ共有処理
+public function share(Request $request, Category $category)
+{
+    if ($category->user_id !== Auth::id()) {
+        abort(403);
+    }
+
+    // バリデーション（配列であることだけチェック。中身は後で）
+    $request->validate([
+        'identifiers' => 'required|array',
+        'permissions' => 'required|array',
+    ]);
+
+    $errors = [];
+    $sharedCount = 0;
+
+    foreach ($request->identifiers as $index => $identifier) {
+        $identifier = trim($identifier);
+
+        // 空欄はスキップ
+        if (empty($identifier)) {
+            continue;
+        }
+
+        $permission = $request->permissions[$index] ?? 'view';
+
+        $sharedUser = User::where('email', $identifier)
+            ->orWhere('account_id', $identifier)
+            ->first();
+
+        if (!$sharedUser) {
+            $errors[] = "【{$identifier}】は存在しないためスキップされました。";
+            continue;
+        }
+
+        $token = (string) Str::uuid();
+
+        $existing = CategoryUserShare::where('category_id', $category->id)
+            ->where('shared_user_id', $sharedUser->id)
+            ->first();
+
+        if ($existing) {
+            $existing->update([
+                'permission' => $permission,
+                'confirmation_token' => $token,
+                'is_confirmed' => false,
+            ]);
+        } else {
+            CategoryUserShare::create([
+                'category_id' => $category->id,
+                'shared_user_id' => $sharedUser->id,
+                'permission' => $permission,
+                'confirmation_token' => $token,
+                'is_confirmed' => false,
+            ]);
+        }
+
+        $sharedUser->notify(new CategoryShareInvitation($category, $token));
+        $sharedCount++;
+    }
+
+    $msg = "{$sharedCount}件の共有リンクを送信しました。";
+    if (!empty($errors)) {
+        $msg .= ' エラー: ' . implode(' / ', $errors);
+    }
+
+    return redirect()->route('categories.show', $category)->with('success', $msg);
+}
+
+    public function updateShare(Request $request, Category $category, User $user)
+    {
+        if ($category->user_id !== Auth::id()) {
+            return response()->json(['error' => '権限がありません'], 403);
+        }
+
+        $permission = $request->input('permission');
+
+        if (!in_array($permission, ['view', 'edit'])) {
+            return response()->json(['error' => '不正な権限です'], 422);
+        }
+
+        $category->sharedUsers()->updateExistingPivot($user->id, [
+            'permission' => $permission,
+        ]);
+
+        return response()->json(['message' => '共有権限を更新しました']);
+    }
+
+    public function deleteShare(Category $category, User $user)
+    {
+        if ($category->user_id !== Auth::id()) {
+            return response()->json(['error' => '権限がありません'], 403);
+        }
+
+        $category->sharedUsers()->detach($user->id);
+
+        return response()->json(['message' => '共有を解除しました']);
+    }
+
+    // 共有確認処理（通知リンククリック後）
+    public function confirmShare($token)
+    {
+        $share = CategoryUserShare::where('confirmation_token', $token)->first();
+
+        if (!$share) {
+            abort(404);
+        }
+
+        if ($share->shared_user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $categoryToken = $token;
+
+        $share->update([
+            'is_confirmed' => true,
+            'confirmation_token' => null,
+        ]);
+
+        return redirect()->route('shared.categories.show', ['token' => $categoryToken])
+            ->with('success', '共有されたカテゴリにアクセスできるようになりました');
+    }
+
+    public function sharedTasks()
+    {
+        $user = Auth::user();
+
+        $sharedCategories = $user->sharedCategories()
+            ->wherePivot('is_confirmed', true)
+            ->with('tasks')
+            ->get();
+
+        return view('categories.shared', compact('sharedCategories'));
+    }
+
+/* Google審査完了後
+private function addToGoogleCalendar($user, $task)
+{
+    $client = new \Google_Client();
+    $client->setClientId(config('services.google.client_id'));
+    $client->setClientSecret(config('services.google.client_secret'));
+    $client->setAccessToken([
+        'access_token' => $user->google_token,
+        'refresh_token' => $user->google_refresh_token,
+    ]);
+    $client->addScope(\Google_Service_Calendar::CALENDAR_EVENTS);
+
+    if ($client->isAccessTokenExpired() && $client->getRefreshToken()) {
+        $newToken = $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+        if (!empty($newToken['access_token'])) {
+            $user->google_token = $newToken['access_token'];
+            $user->save();
+        }
+    }
+
+    $calendar = new \Google_Service_Calendar($client);
+
+    $event = new \Google_Service_Calendar_Event([
+        'summary' => $task->title,
+        'description' => $task->note ?? '',
+        'start' => [
+            'dateTime' => \Carbon\Carbon::parse($task->due_date)->setTime(10, 0)->toRfc3339String(),
+            'timeZone' => 'Asia/Tokyo',
+        ],
+        'end' => [
+            'dateTime' => \Carbon\Carbon::parse($task->due_date)->setTime(11, 0)->toRfc3339String(),
+            'timeZone' => 'Asia/Tokyo',
+        ],
+    ]);
+
+    $calendar->events->insert('primary', $event);
+}
+*/
+    
+}
