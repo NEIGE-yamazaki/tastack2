@@ -1,34 +1,86 @@
 {
+  // エディタ基本設定
   "files.eol": "\n",
   "editor.insertFinalNewline": true,
   "editor.trimAutoWhitespace": true,
   "editor.formatOnSave": true,
-  "typescript.preferences.importModuleSpecifier": "relative",
-  "emmet.includeLanguages": {
-    "blade": "html"
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
   },
+  "editor.tabSize": 4,
+  "editor.insertSpaces": true,
+  
+  // 言語固有設定
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "emmet.includeLanguages": {
+    "blade": "html",
+    "vue": "html"
+  },
+  
+  // ファイル関連設定
   "files.associations": {
     "*.blade.php": "blade",
-    "*.env.*": "dotenv"
+    "*.env.*": "dotenv",
+    "capacitor.config.*": "jsonc",
+    "*.config.js": "javascript"
   },
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/desktop.ini": true,
+    "**/.Trashes": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true
+  },
+  
+  // 検索除外設定
   "search.exclude": {
     "**/node_modules": true,
     "**/vendor": true,
     "**/storage": true,
-    "**/bootstrap/cache": true
+    "**/bootstrap/cache": true,
+    "**/public/build": true,
+    "**/android/app/build": true,
+    "**/ios/App/build": true,
+    "**/.git": true
   },
-  "files.exclude": {
-    "**/.DS_Store": true,
-    "**/Thumbs.db": true
-  },
+  
+  // Git設定
   "git.ignoreLimitWarning": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.enableSmartCommit": true,
+  
+  // ターミナル設定
   "terminal.integrated.env.osx": {
     "PATH": "/opt/homebrew/bin:${env:PATH}"
   },
+  "terminal.integrated.env.linux": {
+    "PATH": "${env:PATH}"
+  },
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  
+  // PHP設定
   "php.validate.executablePath": "/usr/bin/php",
+  "php.suggest.basic": true,
   "intelephense.files.exclude": [
     "**/vendor/**",
     "**/storage/**",
-    "**/bootstrap/cache/**"
-  ]
+    "**/bootstrap/cache/**",
+    "**/node_modules/**"
+  ],
+  
+  // Capacitor/モバイル開発設定
+  "ionic.capacitorPreferredPlatform": "ios",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  
+  // Live Server設定
+  "liveServer.settings.port": 8081,
+  "liveServer.settings.root": "/public",
+  
+  // 自動保存
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000
 }

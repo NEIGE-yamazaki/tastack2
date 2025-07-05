@@ -1,0 +1,51 @@
+{
+  "Laravel Blade Component": {
+    "prefix": "blade-component",
+    "body": [
+      "<x-${1:component-name}${2: :prop=\"\\$value\"}>",
+      "\t$3",
+      "</x-${1:component-name}>"
+    ],
+    "description": "Laravel Bladeコンポーネント"
+  },
+  "Laravel Route": {
+    "prefix": "route",
+    "body": [
+      "Route::${1|get,post,put,patch,delete|}('${2:uri}', [${3:Controller}::class, '${4:method}'])->name('${5:name}');"
+    ],
+    "description": "Laravelルート定義"
+  },
+  "Capacitor Plugin Import": {
+    "prefix": "cap-import",
+    "body": [
+      "import { ${1:PluginName} } from '@capacitor/${2:plugin-name}';",
+      "",
+      "const ${3:methodName} = async () => {",
+      "\ttry {",
+      "\t\tconst result = await ${1:PluginName}.${4:method}();",
+      "\t\tconsole.log(result);",
+      "\t} catch (error) {",
+      "\t\tconsole.error('Error:', error);",
+      "\t}",
+      "};"
+    ],
+    "description": "Capacitorプラグインインポート"
+  },
+  "Alpine.js Component": {
+    "prefix": "alpine-component",
+    "body": [
+      "<div x-data=\"${1:componentName}()\">",
+      "\t$2",
+      "</div>",
+      "",
+      "<script>",
+      "function ${1:componentName}() {",
+      "\treturn {",
+      "\t\t$3",
+      "\t}",
+      "}",
+      "</script>"
+    ],
+    "description": "Alpine.jsコンポーネント"
+  }
+}
