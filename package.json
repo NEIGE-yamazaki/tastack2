@@ -13,6 +13,8 @@
         "cap:run:ios": "npx cap run ios",
         "cap:run:android": "npx cap run android",
         "build:mobile": "vite build && npx cap sync",
+        "build:android": "npm run build:mobile && cd android && ./gradlew assembleDebug",
+        "build:android:release": "npm run build:mobile && cd android && ./gradlew assembleRelease",
         "sync:windows": "bash scripts/pre-push-check.sh",
         "sync:mac": "bash scripts/sync-and-build-ios.sh",
         "env:windows": "cp .env.windows.example .env",

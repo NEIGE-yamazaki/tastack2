@@ -1,0 +1,38 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "php.validate.executablePath": "/usr/bin/php",
+        "terminal.integrated.cwd": "${workspaceFolder}",
+        "files.watcherExclude": {
+            "**/vendor/**": true,
+            "**/node_modules/**": true,
+            "**/storage/**": true,
+            "**/bootstrap/cache/**": true
+        }
+    },
+    "extensions": {
+        "recommendations": [
+            "bmewburn.vscode-intelephense-client",
+            "onecentlin.laravel-blade",
+            "ms-vscode.vscode-typescript-next",
+            "ionicframework.ionic"
+        ]
+    },
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Start Development Environment",
+                "dependsOrder": "sequence",
+                "dependsOn": [
+                    "Laravel Sail Up",
+                    "Vite Dev Server"
+                ]
+            }
+        ]
+    }
+}

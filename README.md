@@ -21,11 +21,17 @@ cd tastack2
 # Windows環境セットアップ
 npm run setup:windows
 
+# Android開発環境セットアップ（Android Studio必須）
+bash scripts/setup-android-windows.sh
+
 # Docker環境起動
 ./vendor/bin/sail up -d
 
 # Webアプリケーション起動
 npm run dev
+
+# Android開発開始
+npm run cap:open:android
 ```
 
 ### Mac環境での初期セットアップ
@@ -62,12 +68,19 @@ npm run sync:mac  # 自動同期＆iOS環境準備
 
 ## 📱 モバイル開発
 
-### Android
+### Android (Windows推奨)
 ```bash
+# 初回セットアップ（Android Studio必須）
+bash scripts/setup-android-windows.sh
+
 # Android Studio で開発
 npm run cap:open:android
 
-# APKビルド
+# APKビルド（簡単）
+npm run build:android  # デバッグ版
+npm run build:android:release  # リリース版
+
+# 手動ビルド
 npm run build:mobile
 cd android && ./gradlew assembleDebug
 ```

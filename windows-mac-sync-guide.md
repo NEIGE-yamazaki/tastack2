@@ -25,10 +25,25 @@ git config --global core.editor "code --wait"
 
 ### Windows での作業フロー
 ```bash
+# 環境セットアップ（初回のみ）
+npm run setup:windows
+
+# Android開発環境セットアップ（初回のみ）
+bash scripts/setup-android-windows.sh
+
 # 開発開始前に最新を取得
 git pull origin main
 
 # 開発作業
+npm run dev  # Web開発サーバー
+npm run cap:open:android  # Android Studio起動
+
+# Android APK ビルド
+npm run build:android  # デバッグ版
+npm run build:android:release  # リリース版
+
+# プッシュ前チェック＆プッシュ
+npm run sync:windows  # 自動チェック実行
 git add .
 git commit -m "新機能: モバイル機能追加"
 git push origin main

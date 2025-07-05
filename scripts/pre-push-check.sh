@@ -33,6 +33,29 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Android開発環境チェック（Windows）
+echo "🤖 Android開発環境をチェック中..."
+if [ -d "/c/Users/$USER/AppData/Local/Android/Sdk" ] || [ -d "/mnt/c/Users/$USER/AppData/Local/Android/Sdk" ]; then
+    echo "✅ Android SDK が見つかりました"
+    
+    # Android プロジェクトのビルドテスト（任意）
+    if [ -d "android" ]; then
+        echo "🔧 Android プロジェクトの構文チェック中..."
+        cd android
+        if command -v ./gradlew &> /dev/null; then
+            ./gradlew build --dry-run
+            if [ $? -eq 0 ]; then
+                echo "✅ Android プロジェクト構文チェック完了"
+            else
+                echo "⚠️ Android プロジェクトに問題がある可能性があります"
+            fi
+        fi
+        cd ..
+    fi
+else
+    echo "⚠️ Android SDK が見つかりません（Android Studio未インストール？）"
+fi
+
 # .envファイルの確認
 echo "⚙️ 環境設定ファイルをチェック中..."
 if [ ! -f ".env" ]; then
