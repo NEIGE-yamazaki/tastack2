@@ -6,6 +6,12 @@
     "url": "http://localhost",
     "cleartext": true
   },
+  "android": {
+    "allowMixedContent": true
+  },
+  "ios": {
+    "scheme": "TASTACK2"
+  },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 3000,
