@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TASTACK2 - Laravel + Capacitor</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .feature-list {
+            text-align: left;
+            margin: 30px 0;
+        }
+        
+        .feature {
+            margin: 15px 0;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .buttons {
+            margin-top: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .capacitor-ready {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            border-radius: 10px;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 TASTACK2</h1>
+        <div class="subtitle">Laravel + Capacitor.js クロスプラットフォーム開発</div>
+        
+        <div class="feature-list">
+            <div class="feature">✅ Laravel バックエンド</div>
+            <div class="feature">✅ Capacitor.js モバイル統合</div>
+            <div class="feature">✅ Android & iOS サポート</div>
+            <div class="feature">✅ Docker + Sail 開発環境</div>
+            <div class="feature">✅ Vite フロントエンド</div>
+            <div class="feature">✅ 日本語ロケール対応</div>
+        </div>
+        
+        <div class="buttons">
+            <a href="/mobile-test" class="btn">モバイル機能テスト</a>
+            <a href="/dashboard" class="btn">ダッシュボード</a>
+        </div>
+        
+        <div class="capacitor-ready" id="capacitor-status">
+            📱 Capacitor Ready - モバイルアプリとして動作中
+        </div>
+    </div>
+
+    <script type="module">
+        // Capacitor が利用可能かチェック
+        if (window.Capacitor) {
+            document.getElementById('capacitor-status').style.display = 'block';
+            console.log('Capacitor Platform:', window.Capacitor.getPlatform());
+        }
+        
+        // モバイル機能デモ
+        window.testMobileFeatures = async function() {
+            if (!window.Capacitor) {
+                alert('この機能はモバイルアプリでのみ利用可能です');
+                return;
+            }
+            
+            try {
+                // デバイス情報取得の例
+                const { Device } = await import('@capacitor/device');
+                const info = await Device.getInfo();
+                alert(`デバイス: ${info.platform} ${info.osVersion}\nモデル: ${info.model}`);
+            } catch (error) {
+                console.error('Error accessing device features:', error);
+                alert('デバイス機能へのアクセス中にエラーが発生しました');
+            }
+        };
+    </script>
+</body>
+</html>
