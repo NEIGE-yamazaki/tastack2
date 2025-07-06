@@ -3,7 +3,7 @@
   "appName": "TASTACK2",
   "webDir": "public",
   "server": {
-    "url": "http://localhost:8081",
+    "url": "http://localhost",
     "cleartext": true
   },
   "plugins": {
