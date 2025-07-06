@@ -66,6 +66,73 @@ else
     echo "✅ Docker Desktop は既にインストールされています"
 fi
 
+# phpMyAdmin のインストール
+echo "🗄️ phpMyAdmin をインストール中..."
+if ! brew list phpmyadmin &> /dev/null; then
+    brew install phpmyadmin
+    echo "✅ phpMyAdmin インストール完了"
+else
+    echo "✅ phpMyAdmin は既にインストールされています"
+fi
+
+# PHP のインストール
+echo "🐘 PHP をインストール中..."
+if ! command -v php &> /dev/null; then
+    brew install php
+    echo "✅ PHP インストール完了"
+else
+    echo "✅ PHP は既にインストールされています"
+fi
+
+# Apache のインストール
+echo "🌐 Apache をインストール中..."
+if ! command -v httpd &> /dev/null; then
+    brew install httpd
+    echo "✅ Apache インストール完了"
+else
+    echo "✅ Apache は既にインストールされています"
+fi
+
+# phpMyAdmin設定の作成
+echo "⚙️ phpMyAdmin設定を構成中..."
+PHPMYADMIN_CONFIG="/opt/homebrew/etc/httpd/extra/phpmyadmin.conf"
+if [ ! -f "$PHPMYADMIN_CONFIG" ]; then
+    cat > "$PHPMYADMIN_CONFIG" << 'EOF'
+# PHP設定
+LoadModule php_module /opt/homebrew/opt/php/lib/httpd/modules/libphp.so
+
+<FilesMatch \.php$>
+    SetHandler application/x-httpd-php
+</FilesMatch>
+
+DirectoryIndex index.php index.html
+
+# phpMyAdmin設定
+Alias /phpmyadmin /opt/homebrew/share/phpmyadmin
+<Directory /opt/homebrew/share/phpmyadmin/>
+    Options Indexes FollowSymLinks MultiViews
+    AllowOverride All
+    Require all granted
+</Directory>
+EOF
+
+    # メイン設定にphpMyAdminを含める
+    if ! grep -q "phpmyadmin.conf" /opt/homebrew/etc/httpd/httpd.conf; then
+        echo "Include /opt/homebrew/etc/httpd/extra/phpmyadmin.conf" >> /opt/homebrew/etc/httpd/httpd.conf
+    fi
+    
+    echo "✅ phpMyAdmin設定完了"
+else
+    echo "✅ phpMyAdmin設定は既に存在します"
+fi
+
+# サービスの起動
+echo "🚀 サービスを起動中..."
+brew services start php
+brew services start httpd
+
+echo "✅ phpMyAdmin は http://localhost:8080/phpmyadmin でアクセス可能です"
+
 # Visual Studio Code のインストール
 echo "💻 VS Code をインストール中..."
 if ! command -v code &> /dev/null; then
@@ -103,6 +170,33 @@ if ! command -v pod &> /dev/null; then
     brew install cocoapods
 else
     echo "✅ CocoaPods は既にインストールされています"
+fi
+
+# Composer のインストール
+echo "📦 Composer をインストール中..."
+if ! command -v composer &> /dev/null; then
+    brew install composer
+    echo "✅ Composer インストール完了"
+else
+    echo "✅ Composer は既にインストールされています"
+fi
+
+# Laravel 依存関係のインストール
+echo "📚 Laravel 依存関係をインストール中..."
+if [ ! -d "vendor" ]; then
+    composer install
+    echo "✅ Laravel 依存関係インストール完了"
+else
+    echo "✅ Laravel 依存関係は既にインストールされています"
+fi
+
+# Sail エイリアスの設定
+echo "🚢 Sail エイリアスを設定中..."
+if ! grep -q "alias sail" ~/.zshrc; then
+    echo 'alias sail="./vendor/bin/sail"' >> ~/.zshrc
+    echo "✅ Sail エイリアス設定完了"
+else
+    echo "✅ Sail エイリアスは既に設定済みです"
 fi
 
 # Xcode のインストール確認
@@ -149,10 +243,16 @@ fi
 echo "🎉 macOS iOS開発環境セットアップ完了！"
 
 echo "📋 次のステップ:"
-echo "1. App Store から Xcode をインストール（または更新）"
-echo "2. Apple Developer Account にサインアップ"
-echo "3. プロジェクトセットアップ: npm run setup:mac"
-echo "4. iOS開発開始: npx cap open ios"
+echo "1. プロジェクトセットアップ: npm run setup:mac"
+echo "2. 開発サーバー起動: npm run dev"
+echo "3. phpMyAdmin起動: brew services start phpmyadmin"
+echo "4. phpMyAdminアクセス: http://localhost:8080"
+echo "5. iOS開発開始: npm run cap:open:ios"
+echo ""
+echo "🗄️ phpMyAdmin コマンド:"
+echo "   起動: brew services start phpmyadmin"
+echo "   停止: brew services stop phpmyadmin"
+echo "   再起動: brew services restart phpmyadmin"
 echo ""
 echo "🔑 SSH キーの設定（推奨）:"
 echo "ssh-keygen -t ed25519 -C \"$git_email\""

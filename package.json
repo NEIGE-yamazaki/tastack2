@@ -22,7 +22,19 @@
         "setup:windows": "npm install && npm run env:windows",
         "setup:mac": "npm install && npm run env:mac && npm run build:mobile",
         "clean": "rm -rf node_modules package-lock.json && npm install",
-        "clean:mobile": "npx cap clean && npx cap sync"
+        "clean:mobile": "npx cap clean && npx cap sync",
+        "phpmyadmin:start": "brew services start httpd && brew services start php",
+        "phpmyadmin:stop": "brew services stop httpd && brew services stop php",
+        "phpmyadmin:restart": "npm run phpmyadmin:stop && npm run phpmyadmin:start",
+        "phpmyadmin:open": "open http://localhost:8080/phpmyadmin/",
+        "sail:up": "./vendor/bin/sail up -d",
+        "sail:down": "./vendor/bin/sail down",
+        "sail:restart": "./vendor/bin/sail restart",
+        "sail:build": "./vendor/bin/sail build --no-cache",
+        "sail:shell": "./vendor/bin/sail shell",
+        "sail:artisan": "./vendor/bin/sail artisan",
+        "sail:test": "./vendor/bin/sail test",
+        "sail:open": "open http://localhost"
     },
     "devDependencies": {
         "axios": "^1.6.4",
