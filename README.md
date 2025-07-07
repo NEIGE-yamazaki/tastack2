@@ -120,6 +120,10 @@ npm run cap:run:ios
 - [Windows↔Mac同期ガイド](./windows-mac-sync-guide.md)
 - [Mac環境セットアップ](./setup-macos.sh)
 - [モバイル機能テスト](http://localhost:8081/mobile-test)
+- [Android Studio文字化け修正ガイド](./docs/android-studio-font-fix.md)
+- [Android アプリ実行ガイド](./docs/android-execution-guide.md)
+- [Android "No target device found" 解決ガイド](./docs/android-no-target-device-fix.md)
+- [WSL環境でのC:\ドライブアクセス](./docs/android-studio-wsl-cdrive-access.md)
 
 ---
 

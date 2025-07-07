@@ -3,11 +3,14 @@
   "appName": "TASTACK2",
   "webDir": "public",
   "server": {
-    "url": "http://localhost",
+    "url": "http://localhost:8081",
     "cleartext": true
   },
   "android": {
-    "allowMixedContent": true
+    "allowMixedContent": true,
+    "buildOptions": {
+      "javaVersion": "VERSION_21"
+    }
   },
   "ios": {
     "scheme": "TASTACK2"

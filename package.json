@@ -17,6 +17,17 @@
         "build:android:release": "npm run build:mobile && cd android && ./gradlew assembleRelease",
         "android:build": "npm run build:mobile && cd android && ./gradlew assembleDebug",
         "android:release": "npm run build:mobile && cd android && ./gradlew assembleRelease",
+        "android:emulator": "./scripts/setup-android-emulator.sh",
+        "android:emulator:list": "$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager list avd",
+        "android:emulator:kill": "adb emu kill",
+        "android:run": "./scripts/run-android.sh",
+        "android:studio": "npx cap open android",
+        "android:studio:ja": "~/bin/android-studio-ja android",
+        "android:install": "cd android && ./gradlew installDebug",
+        "android:clean": "cd android && ./gradlew clean",
+        "android:devices": "adb devices",
+        "android:logcat": "adb logcat | grep -i capacitor",
+        "android:setup": "./scripts/quick-android-setup.sh",
         "ios:build": "npm run build:mobile && cd ios && xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -destination generic/platform=iOS build",
         "ios:release": "npm run build:mobile && cd ios && xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -destination generic/platform=iOS build",
         "sync:windows": "bash scripts/pre-push-check.sh",
@@ -43,6 +54,7 @@
     "devDependencies": {
         "axios": "^1.6.4",
         "laravel-vite-plugin": "^1.0.0",
+        "terser": "^5.43.1",
         "vite": "^5.0.0"
     },
     "dependencies": {
