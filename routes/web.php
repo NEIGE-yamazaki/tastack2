@@ -20,6 +20,11 @@ Route::get('/mobile-test', function () {
     return view('mobile-test');
 })->name('mobile-test');
 
+// 開発環境デモページ
+Route::get('/demo', function () {
+    return view('demo');
+})->name('demo');
+
 // 運営会社
 Route::view('/company', 'static.company')->name('company');
 // 利用規約
