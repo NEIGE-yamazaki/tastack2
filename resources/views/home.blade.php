@@ -36,8 +36,7 @@
 <div class="inner">
 
 <div class="servicelogo">
-<p class="copy">タスクをつめこみタスクをこなせ</p>
-<p class="copy">すてーじんぐ</p>
+<p class="copy">タスクをつめこみタスクをこなせ（ｓｔｇ）</p>
 <p class="sitename">TASTACK</p>
 </div>
 
