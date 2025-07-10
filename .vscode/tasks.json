@@ -347,6 +347,58 @@
                 "panel": "shared"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Google Play: リリースAPK作成",
+            "type": "shell",
+            "command": "./scripts/create-release-apk.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Google Play: キーストア作成",
+            "type": "shell",
+            "command": "keytool -genkey -v -keystore android/app/my-release-key.keystore -alias tastack2_key -keyalg RSA -keysize 2048 -validity 10000",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Google Play: APKファイル確認",
+            "type": "shell",
+            "command": "ls -la android/app/build/outputs/apk/release/ && echo 'APKサイズ:' && du -h android/app/build/outputs/apk/release/app-release.apk",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Google Play: 本番環境設定切り替え",
+            "type": "shell",
+            "command": "./scripts/switch-capacitor-config.sh production",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
         }
     ]
 }
