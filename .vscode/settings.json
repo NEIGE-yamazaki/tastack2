@@ -44,10 +44,18 @@
     "**/.git": true
   },
   // Git設定
+  "git.enabled": true,
+  "git.autoRepositoryDetection": "openEditors",
+  "git.path": "git",
+  "git.detectSubmodules": true,
   "git.ignoreLimitWarning": true,
   "git.confirmSync": false,
   "git.autofetch": true,
   "git.enableSmartCommit": true,
+  "scm.defaultViewMode": "tree",
+  "scm.alwaysShowProviders": true,
+  "scm.repositories.visible": 10,
+  "scm.inputFontSize": 14,
   // ターミナル設定
   "terminal.integrated.env.osx": {
     "PATH": "/opt/homebrew/bin:${env:PATH}"

@@ -399,6 +399,45 @@
                 "panel": "shared"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "VSCode: Git ソース管理修復",
+            "type": "shell",
+            "command": "./scripts/fix-vscode-git.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "VSCode: Git リポジトリ状態確認",
+            "type": "shell",
+            "command": "git status && git log --oneline -5 && git remote -v",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "VSCode: Git 設定確認",
+            "type": "shell",
+            "command": "git config --list | grep -E '(user|core|remote)'",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
         }
     ]
 }

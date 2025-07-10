@@ -125,6 +125,47 @@ npm run cap:run:ios
 - [Android "No target device found" 解決ガイド](./docs/android-no-target-device-fix.md)
 - [WSL環境でのC:\ドライブアクセス](./docs/android-studio-wsl-cdrive-access.md)
 
+## 🔧 トラブルシューティング
+
+### VSCode Git ソース管理の問題
+
+VSCodeでGitのソース管理が動作しない場合：
+
+1. **自動修復スクリプトを実行**
+   ```bash
+   ./scripts/fix-vscode-git.sh
+   ```
+
+2. **VSCodeタスクを使用**
+   - `Ctrl+Shift+P` → `Tasks: Run Task`
+   - `VSCode: Git ソース管理修復` を選択
+
+3. **詳細なガイドを参照**
+   - [VSCode Git トラブルシューティングガイド](docs/vscode-git-troubleshooting.md)
+
+4. **便利なエイリアス**
+   ```bash
+   # エイリアスを読み込み
+   source scripts/vscode-git-aliases.sh
+   
+   # 使用例
+   vscode-git-help    # ガイドを表示
+   vscode-git-fix     # 自動修復
+   vscode-git-status  # 状態確認
+   ```
+
+### Google Play Console 登録
+
+アプリをGoogle Play Consoleに登録する方法：
+
+1. **リリースAPK作成**
+   ```bash
+   ./scripts/create-release-apk.sh
+   ```
+
+2. **詳細なガイドを参照**
+   - [Google Play Console 登録ガイド](docs/google-play-registration-guide.md)
+
 ---
 
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
