@@ -438,6 +438,84 @@
                 "panel": "shared"
             },
             "problemMatcher": []
+        },
+        {
+            "label": "Git: 統合ヘルパー",
+            "type": "shell",
+            "command": "./scripts/git-integration.sh",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Git: ステータス確認",
+            "type": "shell",
+            "command": "./scripts/git-integration.sh st",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Git: 安全プッシュ",
+            "type": "shell",
+            "command": "./scripts/git-integration.sh ps",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Git: WIP自動コミット",
+            "type": "shell",
+            "command": "./scripts/git-integration.sh wip",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Git: プロジェクト健全性チェック",
+            "type": "shell",
+            "command": "./scripts/git-integration.sh health",
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Git: 統計レポート生成",
+            "type": "shell",
+            "command": "./scripts/git-integration.sh report",
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
         }
     ]
 }
