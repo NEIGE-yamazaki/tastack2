@@ -28,6 +28,9 @@ class CategoryController extends Controller
 public function index()
 {
     $categories = Category::where('user_id', Auth::id())
+        ->with(['tasks' => function ($query) {
+            $query->select('id', 'category_id', 'is_done');
+        }])
         ->withCount(['tasks as incomplete_tasks_count' => function ($query) {
             $query->where('is_done', false);
         }])
@@ -214,21 +217,23 @@ public function show(Category $category)
         abort(403);
     }
 
-    $tasks = $category->tasks()->orderBy('created_at', 'desc')->get();
+    $tasks = $category->tasks()->with(['category:id,name,icon_path'])
+        ->orderBy('created_at', 'desc')
+        ->get();
     $isOwner = $category->user_id === $user->id;
     
-$share = CategoryUserShare::where('category_id', $category->id)
-    ->where('shared_user_id', $user->id)
-    ->where('is_confirmed', true)
-    ->first();
+    $share = CategoryUserShare::where('category_id', $category->id)
+        ->where('shared_user_id', $user->id)
+        ->where('is_confirmed', true)
+        ->first();
 
-$sharedPermission = $share->permission ?? null;
-$canEdit = $isOwner || in_array($sharedPermission, ['edit', 'full']);
+    $sharedPermission = $share->permission ?? null;
+    $canEdit = $isOwner || in_array($sharedPermission, ['edit', 'full']);
 
-// 修正後（members に紐づく user も eager load する）：
-$groups = ShareGroup::with(['members.user'])
-    ->where('user_id', $user->id)
-    ->get();
+    // 共有グループをメンバーと一緒に取得（N+1問題を解消）
+    $groups = ShareGroup::with(['members.user'])
+        ->where('user_id', $user->id)
+        ->get();
 
     return view('categories.show', compact('category', 'tasks', 'isOwner', 'canEdit', 'groups', 'sharedPermission'));
 }
@@ -308,6 +313,9 @@ if ($useAi && $user->ai_advisor_used_today < $aiLimit) {
         'ai_advice' => $aiAdvice,
     ]);
 
+    // キャッシュ無効化
+    $this->invalidateUserCache($user->id);
+
     // Googleカレンダー追加（必要時）
     if (
         $user->google_token &&
@@ -319,6 +327,17 @@ if ($useAi && $user->ai_advisor_used_today < $aiLimit) {
     }
 
     return redirect()->route('categories.show', $category)->with('success', 'タスクを追加しました');
+}
+
+/**
+ * ユーザーのキャッシュを無効化
+ */
+private function invalidateUserCache($userId)
+{
+    \Cache::forget("dashboard_user_{$userId}");
+    \Cache::forget("category_stats_user_{$userId}");
+    \Cache::forget("user_stats_{$userId}");
+    \Cache::forget("shared_categories_user_{$userId}");
 }
 
 // カテゴリ共有処理
@@ -446,9 +465,13 @@ public function sharedTasks()
 {
     $user = Auth::user();
 
+    // N+1問題を解消：カテゴリ、タスク、共有情報を一度に取得
     $sharedCategories = $user->sharedCategories()
         ->wherePivot('is_confirmed', true)
         ->withPivot(['permission', 'confirmation_token'])
+        ->with(['tasks' => function ($query) {
+            $query->select('id', 'category_id', 'is_done');
+        }])
         ->withCount([
             'tasks as incomplete_tasks_count' => function ($query) {
                 $query->where('is_done', false);

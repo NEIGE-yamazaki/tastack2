@@ -2,12 +2,8 @@
   "appId": "com.hintoru.tastack2",
   "appName": "TASTACK2",
   "webDir": "public",
-  "server": {
-    "url": "http://10.0.2.2:8081",
-    "cleartext": true
-  },
   "android": {
-    "allowMixedContent": true,
+    "allowMixedContent": false,
     "buildOptions": {
       "javaVersion": "VERSION_21"
     }

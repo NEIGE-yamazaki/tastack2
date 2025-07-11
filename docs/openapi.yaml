@@ -1,0 +1,1545 @@
+openapi: 3.0.0
+info:
+  title: TASTACK2 API
+  description: Laravel + Capacitor.jsベースのタスク管理システム API
+  version: 1.1.0
+  contact:
+    name: TASTACK2 開発チーム
+    email: support@tastack2.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8081
+    description: 開発環境
+  - url: https://api.tastack2.com
+    description: 本番環境
+
+security:
+  - bearerAuth: []
+  - csrfToken: []
+
+paths:
+  /login:
+    post:
+      summary: ユーザーログイン
+      tags:
+        - 認証
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                remember:
+                  type: boolean
+                  example: true
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  redirect:
+                    type: string
+                    example: /dashboard
+                  user:
+                    $ref: '#/components/schemas/User'
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /logout:
+    post:
+      summary: ログアウト
+      tags:
+        - 認証
+      responses:
+        '200':
+          description: ログアウト成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  redirect:
+                    type: string
+                    example: /
+
+  /register:
+    post:
+      summary: ユーザー登録
+      tags:
+        - 認証
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: ユーザー名
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: password123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: password123
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+      responses:
+        '201':
+          description: 登録成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  redirect:
+                    type: string
+                    example: /email/verify
+                  message:
+                    type: string
+                    example: 確認メールを送信しました
+
+  /dashboard:
+    get:
+      summary: ダッシュボード情報取得
+      tags:
+        - ダッシュボード
+      responses:
+        '200':
+          description: ダッシュボード情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ownCategories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+                  sharedCategories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SharedCategory'
+                  stats:
+                    $ref: '#/components/schemas/DashboardStats'
+
+  /categories:
+    get:
+      summary: カテゴリ一覧取得
+      tags:
+        - カテゴリ
+      parameters:
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [display_order, created_at, name]
+          description: 並び順
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: 昇順/降順
+        - name: with_tasks
+          in: query
+          schema:
+            type: boolean
+          description: タスクを含める
+      responses:
+        '200':
+          description: カテゴリ一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  categories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+    post:
+      summary: カテゴリ作成
+      tags:
+        - カテゴリ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 新しいカテゴリ
+                icon:
+                  type: string
+                  format: binary
+                  description: アイコン画像
+                display_order:
+                  type: integer
+                  example: 1
+              required:
+                - name
+      responses:
+        '201':
+          description: カテゴリ作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  category:
+                    $ref: '#/components/schemas/Category'
+                  message:
+                    type: string
+                    example: カテゴリを作成しました
+
+  /categories/{id}:
+    get:
+      summary: カテゴリ詳細取得
+      tags:
+        - カテゴリ
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      responses:
+        '200':
+          description: カテゴリ詳細
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    $ref: '#/components/schemas/CategoryWithTasks'
+    patch:
+      summary: カテゴリ更新
+      tags:
+        - カテゴリ
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 更新されたカテゴリ名
+                icon:
+                  type: string
+                  format: binary
+                display_order:
+                  type: integer
+                  example: 2
+      responses:
+        '200':
+          description: カテゴリ更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  category:
+                    $ref: '#/components/schemas/Category'
+                  message:
+                    type: string
+                    example: カテゴリを更新しました
+    delete:
+      summary: カテゴリ削除
+      tags:
+        - カテゴリ
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      responses:
+        '204':
+          description: カテゴリ削除成功
+        '404':
+          description: カテゴリが見つかりません
+
+  /categories/reorder:
+    post:
+      summary: カテゴリ並び替え
+      tags:
+        - カテゴリ
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      order:
+                        type: integer
+                        example: 1
+              required:
+                - orders
+      responses:
+        '200':
+          description: 並び替え成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  message:
+                    type: string
+                    example: 並び順を更新しました
+
+  /categories/{id}/tasks:
+    post:
+      summary: タスク作成
+      tags:
+        - タスク
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: 新しいタスク
+                description:
+                  type: string
+                  example: タスクの詳細説明
+                due_date:
+                  type: string
+                  format: date-time
+                  example: 2025-01-15T00:00:00.000000Z
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                  example: high
+              required:
+                - title
+      responses:
+        '201':
+          description: タスク作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  task:
+                    $ref: '#/components/schemas/Task'
+                  message:
+                    type: string
+                    example: タスクを作成しました
+
+  /tasks/{id}/toggle:
+    patch:
+      summary: タスク完了切り替え
+      tags:
+        - タスク
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タスクID
+      responses:
+        '200':
+          description: タスク完了切り替え成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  task:
+                    $ref: '#/components/schemas/Task'
+                  message:
+                    type: string
+                    example: タスクを完了しました
+
+  /tasks/{id}:
+    patch:
+      summary: タスク更新
+      tags:
+        - タスク
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タスクID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: 更新されたタスク
+                description:
+                  type: string
+                  example: 新しい説明
+                due_date:
+                  type: string
+                  format: date-time
+                  example: 2025-01-20T00:00:00.000000Z
+                priority:
+                  type: string
+                  enum: [low, medium, high]
+                  example: medium
+      responses:
+        '200':
+          description: タスク更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  task:
+                    $ref: '#/components/schemas/Task'
+                  message:
+                    type: string
+                    example: タスクを更新しました
+    delete:
+      summary: タスク削除
+      tags:
+        - タスク
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タスクID
+      responses:
+        '204':
+          description: タスク削除成功
+        '404':
+          description: タスクが見つかりません
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    csrfToken:
+      type: apiKey
+      in: header
+      name: X-CSRF-TOKEN
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: ユーザー名
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        email_verified_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+        avatar_url:
+          type: string
+          example: /storage/avatars/user_1.png
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 仕事
+        display_order:
+          type: integer
+          example: 1
+        icon_path:
+          type: string
+          example: /storage/icons/work.png
+        incomplete_tasks_count:
+          type: integer
+          example: 3
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+
+    CategoryWithTasks:
+      allOf:
+        - $ref: '#/components/schemas/Category'
+        - type: object
+          properties:
+            tasks:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
+            shared_users:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 2
+                  name:
+                    type: string
+                    example: 共有ユーザー
+                  email:
+                    type: string
+                    format: email
+                    example: shared@example.com
+                  pivot:
+                    type: object
+                    properties:
+                      permission:
+                        type: string
+                        enum: [view, edit]
+                        example: edit
+                      created_at:
+                        type: string
+                        format: date-time
+                        example: 2025-01-01T00:00:00.000000Z
+
+    SharedCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: 共有カテゴリ
+        incomplete_tasks_count:
+          type: integer
+          example: 1
+        pivot:
+          type: object
+          properties:
+            permission:
+              type: string
+              enum: [view, edit]
+              example: edit
+            created_at:
+              type: string
+              format: date-time
+              example: 2025-01-01T00:00:00.000000Z
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: 会議準備
+        description:
+          type: string
+          example: 資料作成
+        is_done:
+          type: boolean
+          example: false
+        due_date:
+          type: string
+          format: date-time
+          example: 2025-01-15T00:00:00.000000Z
+        priority:
+          type: string
+          enum: [low, medium, high]
+          example: high
+        category_id:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+
+    DashboardStats:
+      type: object
+      properties:
+        total_categories:
+          type: integer
+          example: 5
+        total_tasks:
+          type: integer
+          example: 12
+        completed_tasks:
+          type: integer
+          example: 8
+        pending_tasks:
+          type: integer
+          example: 4
+
+    ValidationError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        status:
+          type: integer
+          example: 422
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: エラーメッセージ
+        message:
+          type: string
+          example: 詳細説明
+        status:
+          type: integer
+          example: 400
+                  success:
+                    type: boolean
+                    example: true
+                  redirect:
+                    type: string
+                    example: /dashboard
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /logout:
+    post:
+      summary: ユーザーログアウト
+      tags:
+        - Authentication
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: ログアウト成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  redirect:
+                    type: string
+                    example: /
+
+  /register:
+    post:
+      summary: ユーザー登録
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                  example: 山田太郎
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: password123
+                password_confirmation:
+                  type: string
+                  format: password
+                  example: password123
+              required:
+                - name
+                - email
+                - password
+                - password_confirmation
+      responses:
+        '201':
+          description: 登録成功
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /dashboard:
+    get:
+      summary: ダッシュボード情報取得
+      tags:
+        - Dashboard
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: ダッシュボード情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ownCategories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+                  sharedCategories:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SharedCategory'
+
+  /categories:
+    get:
+      summary: カテゴリ一覧取得
+      tags:
+        - Categories
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: カテゴリ一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Category'
+    post:
+      summary: カテゴリ作成
+      tags:
+        - Categories
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 50
+                  example: 仕事
+                icon:
+                  type: string
+                  format: binary
+                  description: カテゴリアイコン画像（最大5MB）
+              required:
+                - name
+      responses:
+        '201':
+          description: カテゴリ作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: カテゴリを作成しました
+                  data:
+                    $ref: '#/components/schemas/Category'
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /categories/{category}:
+    get:
+      summary: カテゴリ詳細取得
+      tags:
+        - Categories
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      responses:
+        '200':
+          description: カテゴリ詳細
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  category:
+                    $ref: '#/components/schemas/Category'
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  shared_users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SharedUser'
+        '403':
+          description: アクセス権限なし
+        '404':
+          description: カテゴリが見つかりません
+    patch:
+      summary: カテゴリ更新
+      tags:
+        - Categories
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 50
+                  example: 更新されたカテゴリ
+                icon:
+                  type: string
+                  format: binary
+                  description: カテゴリアイコン画像（最大5MB）
+              required:
+                - name
+      responses:
+        '200':
+          description: カテゴリ更新成功
+        '403':
+          description: アクセス権限なし
+        '404':
+          description: カテゴリが見つかりません
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+    delete:
+      summary: カテゴリ削除
+      tags:
+        - Categories
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      responses:
+        '200':
+          description: カテゴリ削除成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: カテゴリを削除しました
+        '403':
+          description: アクセス権限なし
+        '404':
+          description: カテゴリが見つかりません
+
+  /categories/reorder:
+    post:
+      summary: カテゴリ並び替え
+      tags:
+        - Categories
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      order:
+                        type: integer
+                        example: 1
+                    required:
+                      - id
+                      - order
+              required:
+                - orders
+      responses:
+        '200':
+          description: 並び替え成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /categories/{category}/tasks:
+    post:
+      summary: タスク作成
+      tags:
+        - Tasks
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                  example: 新しいタスク
+                due_date:
+                  type: string
+                  format: date-time
+                  example: 2025-07-15T10:00:00
+                note:
+                  type: string
+                  example: タスクの詳細説明
+                use_ai_advisor:
+                  type: boolean
+                  example: true
+                add_to_google_calendar:
+                  type: boolean
+                  example: false
+              required:
+                - title
+      responses:
+        '201':
+          description: タスク作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: タスクを追加しました
+                  data:
+                    $ref: '#/components/schemas/Task'
+        '403':
+          description: アクセス権限なし
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /tasks/{task}/toggle:
+    patch:
+      summary: タスク完了状態切り替え
+      tags:
+        - Tasks
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: task
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タスクID
+      responses:
+        '200':
+          description: 完了状態切り替え成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: タスクの完了状態を変更しました
+                  is_done:
+                    type: boolean
+                    example: true
+        '403':
+          description: アクセス権限なし
+        '404':
+          description: タスクが見つかりません
+
+  /tasks/{task}:
+    patch:
+      summary: タスク更新
+      tags:
+        - Tasks
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: task
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タスクID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                  example: 更新されたタスク
+                due_date:
+                  type: string
+                  format: date-time
+                  example: 2025-07-16T15:00:00
+                note:
+                  type: string
+                  example: 更新された説明
+                done_comment:
+                  type: string
+                  example: 完了時のコメント
+      responses:
+        '200':
+          description: タスク更新成功
+        '403':
+          description: アクセス権限なし
+        '404':
+          description: タスクが見つかりません
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+    delete:
+      summary: タスク削除
+      tags:
+        - Tasks
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: task
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: タスクID
+      responses:
+        '200':
+          description: タスク削除成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: タスクを削除しました
+        '403':
+          description: アクセス権限なし
+        '404':
+          description: タスクが見つかりません
+
+  /categories/{category}/share:
+    post:
+      summary: カテゴリ共有
+      tags:
+        - Sharing
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: カテゴリID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                identifiers:
+                  type: array
+                  items:
+                    type: string
+                  example: ["user@example.com", "account123"]
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    enum: [view, edit, full]
+                  example: ["edit", "view"]
+              required:
+                - identifiers
+                - permissions
+      responses:
+        '200':
+          description: 共有成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: 2件の共有リンクを送信しました
+        '403':
+          description: アクセス権限なし
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /profile:
+    get:
+      summary: プロフィール情報取得
+      tags:
+        - Profile
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: プロフィール情報
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+    patch:
+      summary: プロフィール更新
+      tags:
+        - Profile
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 255
+                  example: 更新されたユーザー名
+                email:
+                  type: string
+                  format: email
+                  example: updated@example.com
+                account_id:
+                  type: string
+                  maxLength: 10
+                  pattern: '^[a-zA-Z0-9]+$'
+                  example: newid123
+                button_layout:
+                  type: string
+                  enum: [menu_above, menu_under]
+                  example: menu_under
+                google_calendar_color:
+                  type: string
+                  pattern: '^#[0-9a-fA-F]{6}$'
+                  example: "#34a853"
+              required:
+                - name
+                - email
+                - account_id
+                - button_layout
+      responses:
+        '200':
+          description: プロフィール更新成功
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: laravel_session
+      description: Laravel セッション認証
+
+  schemas:
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 仕事
+        display_order:
+          type: integer
+          example: 1
+        icon_path:
+          type: string
+          nullable: true
+          example: /storage/icons/work.png
+        incomplete_tasks_count:
+          type: integer
+          example: 3
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+
+    SharedCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: チーム共有
+        incomplete_tasks_count:
+          type: integer
+          example: 1
+        pivot:
+          type: object
+          properties:
+            permission:
+              type: string
+              enum: [view, edit, full]
+              example: edit
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: プレゼン資料作成
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2025-07-15T10:00:00
+        note:
+          type: string
+          nullable: true
+          example: 月末までに完成させる
+        is_done:
+          type: boolean
+          example: false
+        used_ai_advisor:
+          type: boolean
+          example: true
+        ai_advice:
+          type: string
+          nullable: true
+          example: 効率的な作業手順の提案
+        done_comment:
+          type: string
+          nullable: true
+          example: 完了時のコメント
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: 山田太郎
+        email:
+          type: string
+          format: email
+          example: user@example.com
+        account_id:
+          type: string
+          example: user123
+        button_layout:
+          type: string
+          enum: [menu_above, menu_under]
+          example: menu_above
+        google_calendar_color:
+          type: string
+          nullable: true
+          example: "#4285f4"
+        ai_advisor_used_today:
+          type: integer
+          example: 2
+        ai_advisor_limit_per_day:
+          type: integer
+          example: 5
+        created_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2025-01-01T00:00:00.000000Z
+
+    SharedUser:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        name:
+          type: string
+          example: 共有ユーザー
+        email:
+          type: string
+          format: email
+          example: shared@example.com
+        pivot:
+          type: object
+          properties:
+            permission:
+              type: string
+              enum: [view, edit, full]
+              example: edit
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example:
+            email: ["The email field is required."]
+            password: ["The password field is required."]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: エラーメッセージ
+        message:
+          type: string
+          example: 詳細なエラー説明
+        status:
+          type: integer
+          example: 400
+
+tags:
+  - name: Authentication
+    description: 認証関連のAPI
+  - name: Dashboard
+    description: ダッシュボード関連のAPI
+  - name: Categories
+    description: カテゴリ関連のAPI
+  - name: Tasks
+    description: タスク関連のAPI
+  - name: Sharing
+    description: 共有機能関連のAPI
+  - name: Profile
+    description: プロフィール関連のAPI

@@ -1,0 +1,892 @@
+{
+  "info": {
+    "name": "TASTACK2 API",
+    "description": "Laravel + Capacitor.jsベースのタスク管理システムAPI",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "noauth"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "csrfToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get CSRF Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/sanctum/csrf-cookie",
+              "host": ["{{baseUrl}}"],
+              "path": ["sanctum", "csrf-cookie"]
+            },
+            "description": "CSRFトークンを取得します"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            },
+            "description": "ユーザーログイン"
+          },
+          "response": []
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"テストユーザー\",\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["register"]
+            },
+            "description": "新規ユーザー登録"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["logout"]
+            },
+            "description": "ユーザーログアウト"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard"]
+            },
+            "description": "ダッシュボード情報を取得"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "List Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "カテゴリ一覧を取得"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "新しいカテゴリ",
+                  "type": "text"
+                },
+                {
+                  "key": "icon",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            },
+            "description": "新しいカテゴリを作成"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/:categoryId",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":categoryId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1",
+                  "description": "カテゴリID"
+                }
+              ]
+            },
+            "description": "指定されたカテゴリの詳細を取得"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "更新されたカテゴリ",
+                  "type": "text"
+                },
+                {
+                  "key": "icon",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/:categoryId",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":categoryId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1",
+                  "description": "カテゴリID"
+                }
+              ]
+            },
+            "description": "カテゴリを更新"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/:categoryId",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":categoryId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1",
+                  "description": "カテゴリID"
+                }
+              ]
+            },
+            "description": "カテゴリを削除"
+          },
+          "response": []
+        },
+        {
+          "name": "Reorder Categories",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orders\": [\n    {\"id\": 1, \"order\": 1},\n    {\"id\": 2, \"order\": 2}\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/reorder",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "reorder"]
+            },
+            "description": "カテゴリの並び順を変更"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks",
+      "item": [
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"新しいタスク\",\n  \"due_date\": \"2025-07-15 10:00:00\",\n  \"note\": \"タスクの詳細説明\",\n  \"use_ai_advisor\": true,\n  \"add_to_google_calendar\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/:categoryId/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":categoryId", "tasks"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1",
+                  "description": "カテゴリID"
+                }
+              ]
+            },
+            "description": "新しいタスクを作成"
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:taskId/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":taskId", "toggle"],
+              "variable": [
+                {
+                  "key": "taskId",
+                  "value": "1",
+                  "description": "タスクID"
+                }
+              ]
+            },
+            "description": "タスクの完了状態を切り替え"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"更新されたタスク\",\n  \"due_date\": \"2025-07-16 15:00:00\",\n  \"note\": \"更新された説明\",\n  \"done_comment\": \"完了時のコメント\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:taskId",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":taskId"],
+              "variable": [
+                {
+                  "key": "taskId",
+                  "value": "1",
+                  "description": "タスクID"
+                }
+              ]
+            },
+            "description": "タスクを更新"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/tasks/:taskId",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks", ":taskId"],
+              "variable": [
+                {
+                  "key": "taskId",
+                  "value": "1",
+                  "description": "タスクID"
+                }
+              ]
+            },
+            "description": "タスクを削除"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Sharing",
+      "item": [
+        {
+          "name": "Share Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifiers\": [\"user@example.com\", \"account123\"],\n  \"permissions\": [\"edit\", \"view\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/:categoryId/share",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":categoryId", "share"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1",
+                  "description": "カテゴリID"
+                }
+              ]
+            },
+            "description": "カテゴリを共有"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Share Permission",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permission\": \"full\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/:categoryId/share/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":categoryId", "share", ":userId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1",
+                  "description": "カテゴリID"
+                },
+                {
+                  "key": "userId",
+                  "value": "2",
+                  "description": "ユーザーID"
+                }
+              ]
+            },
+            "description": "共有権限を更新"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Share",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories/:categoryId/share/:userId",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", ":categoryId", "share", ":userId"],
+              "variable": [
+                {
+                  "key": "categoryId",
+                  "value": "1",
+                  "description": "カテゴリID"
+                },
+                {
+                  "key": "userId",
+                  "value": "2",
+                  "description": "ユーザーID"
+                }
+              ]
+            },
+            "description": "共有を解除"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Shared Tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/shared-tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["shared-tasks"]
+            },
+            "description": "共有されているタスク一覧を取得"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Share Groups",
+      "item": [
+        {
+          "name": "List Share Groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/share-groups",
+              "host": ["{{baseUrl}}"],
+              "path": ["share-groups"]
+            },
+            "description": "共有グループ一覧を取得"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Share Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"新しいグループ\",\n  \"identifiers\": [\"user1@example.com\", \"user2@example.com\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/share-groups",
+              "host": ["{{baseUrl}}"],
+              "path": ["share-groups"]
+            },
+            "description": "新しい共有グループを作成"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Share Group",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"更新されたグループ名\",\n  \"identifiers\": [\"user1@example.com\", \"user3@example.com\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/share-groups/:groupId",
+              "host": ["{{baseUrl}}"],
+              "path": ["share-groups", ":groupId"],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "1",
+                  "description": "グループID"
+                }
+              ]
+            },
+            "description": "共有グループを更新"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Share Group",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/share-groups/:groupId",
+              "host": ["{{baseUrl}}"],
+              "path": ["share-groups", ":groupId"],
+              "variable": [
+                {
+                  "key": "groupId",
+                  "value": "1",
+                  "description": "グループID"
+                }
+              ]
+            },
+            "description": "共有グループを削除"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "description": "プロフィール情報を取得"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"更新されたユーザー名\",\n  \"email\": \"updated@example.com\",\n  \"account_id\": \"newid123\",\n  \"button_layout\": \"menu_under\",\n  \"google_calendar_color\": \"#34a853\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["profile"]
+            },
+            "description": "プロフィールを更新"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-CSRF-TOKEN",
+                "value": "{{csrfToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"current_password\",\n  \"password\": \"new_password\",\n  \"password_confirmation\": \"new_password\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/password",
+              "host": ["{{baseUrl}}"],
+              "path": ["password"]
+            },
+            "description": "パスワードを更新"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// CSRFトークンの自動取得",
+          "if (!pm.globals.get('csrfToken')) {",
+          "  pm.sendRequest({",
+          "    url: pm.variables.get('baseUrl') + '/sanctum/csrf-cookie',",
+          "    method: 'GET'",
+          "  }, function (err, response) {",
+          "    if (err) {",
+          "      console.log('CSRFトークン取得エラー:', err);",
+          "    } else {",
+          "      // レスポンスヘッダーからCSRFトークンを取得",
+          "      const cookies = response.headers.get('set-cookie');",
+          "      if (cookies) {",
+          "        const csrfCookie = cookies.find(cookie => cookie.includes('XSRF-TOKEN'));",
+          "        if (csrfCookie) {",
+          "          const token = csrfCookie.split('=')[1].split(';')[0];",
+          "          pm.globals.set('csrfToken', decodeURIComponent(token));",
+          "        }",
+          "      }",
+          "    }",
+          "  });",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// レスポンスが成功した場合の共通テスト",
+          "pm.test('Status code is successful', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+          "});",
+          "",
+          "// JSONレスポンスの場合の共通テスト",
+          "if (pm.response.headers.get('content-type') && pm.response.headers.get('content-type').includes('application/json')) {",
+          "  pm.test('Response is valid JSON', function () {",
+          "    pm.response.to.be.json;",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

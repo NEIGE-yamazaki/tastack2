@@ -14,13 +14,15 @@ public function toggle(Request $request, Task $task)
 {
     $user = Auth::user();
 
-    $isOwner = $task->category->user_id === $user->id;
+    // カテゴリ情報を事前に取得してクエリを最適化
+    $task->load(['category.user', 'category.sharedUsers' => function ($query) use ($user) {
+        $query->where('shared_user_id', $user->id)
+              ->whereIn('permission', ['edit', 'full'])
+              ->where('is_confirmed', true);
+    }]);
 
-    $hasPermission = $task->category->sharedUsers()
-        ->where('shared_user_id', $user->id)
-        ->whereIn('permission', ['edit', 'full']) 
-        ->where('is_confirmed', true)
-        ->exists();
+    $isOwner = $task->category->user_id === $user->id;
+    $hasPermission = $task->category->sharedUsers->isNotEmpty();
 
     if (!$isOwner && !$hasPermission) {
         return response()->json(['error' => '権限がありません'], 403);
@@ -39,15 +41,16 @@ public function toggle(Request $request, Task $task)
 public function update(Request $request, Task $task)
 {
     $user = Auth::user();
-    $category = $task->category;
+    
+    // カテゴリ情報と共有情報を事前に取得してクエリを最適化
+    $task->load(['category.user', 'category.sharedUsers' => function ($query) use ($user) {
+        $query->where('shared_user_id', $user->id)
+              ->where('permission', 'full')
+              ->where('is_confirmed', true);
+    }]);
 
-    $isOwner = $category->user_id === $user->id;
-
-    $hasFullPermission = CategoryUserShare::where('category_id', $category->id)
-        ->where('shared_user_id', $user->id)
-        ->where('permission', 'full')
-        ->where('is_confirmed', true)
-        ->exists();
+    $isOwner = $task->category->user_id === $user->id;
+    $hasFullPermission = $task->category->sharedUsers->isNotEmpty();
 
     if (!$isOwner && !$hasFullPermission) {
         return response()->json(['error' => '権限がありません'], 403);
@@ -72,13 +75,15 @@ public function destroy(Task $task)
 {
     $user = Auth::user();
 
-    $isOwner = $task->category->user_id === $user->id;
+    // カテゴリ情報と共有情報を事前に取得してクエリを最適化
+    $task->load(['category.user', 'category.sharedUsers' => function ($query) use ($user) {
+        $query->where('shared_user_id', $user->id)
+              ->where('permission', 'full')
+              ->where('is_confirmed', true);
+    }]);
 
-    $hasPermission = $task->category->sharedUsers()
-        ->where('shared_user_id', $user->id)
-        ->whereIn('permission', ['full']) 
-        ->where('is_confirmed', true)
-        ->exists();
+    $isOwner = $task->category->user_id === $user->id;
+    $hasPermission = $task->category->sharedUsers->isNotEmpty();
 
     if (!$isOwner && !$hasPermission) {
         return response()->json(['error' => '権限がありません'], 403);
